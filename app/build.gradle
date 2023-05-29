@@ -79,4 +79,17 @@ dependencies {
     //Retrofit2
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+
+
+//#######################################################################################################
+                                /*** YANDEX MapKit ***/
+//#######################################################################################################
+    // The lite library only contains the map, traffic layer,
+    // LocationManager, and UserLocationLayer and lets you download offline maps (in the paid version only).
+    implementation 'com.yandex.android:maps.mobile:4.3.1-lite'
+
+    // The full library supplements lite version features with car routing,
+    // bike routing, pedestrian routing, and public transport routing,
+    // search, suggest, geocoding, and panorama display.
+    implementation 'com.yandex.android:maps.mobile:4.3.1-full' 
 }

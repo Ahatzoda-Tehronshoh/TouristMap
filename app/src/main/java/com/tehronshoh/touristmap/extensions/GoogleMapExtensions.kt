@@ -1,4 +1,4 @@
-package com.tehronshoh.touristmap
+package com.tehronshoh.touristmap.extensions
 
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap

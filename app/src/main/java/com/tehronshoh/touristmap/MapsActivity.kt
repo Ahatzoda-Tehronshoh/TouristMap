@@ -13,9 +13,9 @@ import android.view.View.VISIBLE
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,13 +36,18 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.tehronshoh.touristmap.BuildConfig.MAPS_API_KEY
 import com.tehronshoh.touristmap.databinding.ActivityMapsBinding
+import com.tehronshoh.touristmap.extensions.animateWithZeroingZoom
+import com.tehronshoh.touristmap.extensions.hideBottomSheetPlace
+import com.tehronshoh.touristmap.extensions.showBottomSheetPlace
+import com.tehronshoh.touristmap.mapKit.MapKitUtil
 import com.tehronshoh.touristmap.models.Place
-import kotlinx.coroutines.CoroutineScope
+import com.yandex.mapkit.Animation
+import com.yandex.mapkit.geometry.Point
+import com.yandex.mapkit.map.CameraPosition
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
@@ -55,6 +60,10 @@ import kotlin.random.Random
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnMyLocationButtonClickListener,
     OnMyLocationClickListener, GoogleMap.OnMarkerClickListener, OnRequestPermissionsResultCallback {
+
+    private val mapKitUtil: MapKitUtil by lazy {
+        MapKitUtil(binding.yandexMapView)
+    }
 
     private var showBottomSheet = mutableStateOf(false)
     private var currentPosition: LatLng? = null
@@ -71,7 +80,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnMyLocationButton
     private lateinit var mMap: GoogleMap
     private lateinit var binding: ActivityMapsBinding
 
-    @OptIn(ExperimentalMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -79,47 +87,64 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnMyLocationButton
         setContentView(binding.root)
 
         binding.composeView.setContent {
-            val showBottomSheetRemember by remember {
-                showBottomSheet
-            }
-            val sheetState = rememberModalBottomSheetState(
-                initialValue = ModalBottomSheetValue.Hidden,
-                confirmValueChange = { it != ModalBottomSheetValue.Expanded },
-                //skipHalfExpanded = true
-            )
-
-            val coroutineScope = rememberCoroutineScope()
-
-            if (showBottomSheetRemember) {
-                binding.composeView.visibility = VISIBLE
-                showBottomSheetPlace(sheetState, coroutineScope)
-                Log.d("TAG_TEST", "onCreate: $choosingPlace")
-                choosingPlace?.let {
-                    PlaceBottomSheet(place = it,
-                        sheetState = sheetState,
-                        coroutineScope = coroutineScope,
-                        buildRoute = {
-                            showBottomSheet.value = false
-                            createRouteToDestination(
-                                to = LatLng(it.latitude, it.longitude)
-                            )
-                        }) {
-                        showBottomSheet.value = false
-                    }
-                }
-            } else
-                hideBottomSheetPlace(sheetState, coroutineScope)
-
-            LaunchedEffect(key1 = sheetState.currentValue) {
-                if (showBottomSheet.value && (sheetState.currentValue == ModalBottomSheetValue.Hidden)) {
-                    showBottomSheet.value = false
-                }
-            }
+            PlaceModalBottomSheetInitialize()
         }
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+
+
+        val point = Point(
+            currentPosition?.latitude ?: 38.57935204500182,
+            currentPosition?.longitude ?: 68.79011909252935
+        )
+        mapKitUtil.initialize(
+            context = this,
+            cameraPosition = CameraPosition(point, 8f, 0f, 0f),
+            animation = Animation(Animation.Type.SMOOTH, 1000f)
+        )
+    }
+
+    @OptIn(ExperimentalMaterialApi::class)
+    @Composable
+    private fun PlaceModalBottomSheetInitialize() {
+        val showBottomSheetRemember by remember {
+            showBottomSheet
+        }
+        val sheetState = rememberModalBottomSheetState(
+            initialValue = ModalBottomSheetValue.Hidden,
+            confirmValueChange = { it != ModalBottomSheetValue.Expanded },
+            //skipHalfExpanded = true
+        )
+
+        val coroutineScope = rememberCoroutineScope()
+
+        if (showBottomSheetRemember) {
+            binding.composeView.visibility = VISIBLE
+            sheetState.showBottomSheetPlace(coroutineScope)
+            Log.d("TAG_TEST", "onCreate: $choosingPlace")
+            choosingPlace?.let {
+                PlaceBottomSheet(place = it,
+                    sheetState = sheetState,
+                    coroutineScope = coroutineScope,
+                    buildRoute = {
+                        showBottomSheet.value = false
+                        createRouteToDestination(
+                            to = LatLng(it.latitude, it.longitude)
+                        )
+                    }) {
+                    showBottomSheet.value = false
+                }
+            }
+        } else
+            sheetState.hideBottomSheetPlace(coroutineScope)
+
+        LaunchedEffect(key1 = sheetState.currentValue) {
+            if (showBottomSheet.value && (sheetState.currentValue == ModalBottomSheetValue.Hidden)) {
+                showBottomSheet.value = false
+            }
+        }
     }
 
     interface TestRequest {
@@ -148,10 +173,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnMyLocationButton
                     call: Call<ResponseBody>,
                     response: Response<ResponseBody>
                 ) {
-                    if(response.code() == 200) {
-                        if(response.body() != null) {
+                    if (response.code() == 200) {
+                        if (response.body() != null) {
                             Log.d("TAG_MAP", "onResponse: ${response.body()!!.string()}")
-                            Toast.makeText(this@MapsActivity, response.body()!!.string(), Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                this@MapsActivity,
+                                response.body()!!.string(),
+                                Toast.LENGTH_SHORT
+                            ).show()
                         } else
                             Log.d("TAG_MAP", "onResponse: null")
                     } else
@@ -167,29 +196,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnMyLocationButton
         }
     }
 
-
-    @OptIn(ExperimentalMaterialApi::class)
-    private fun showBottomSheetPlace(
-        sheetState: ModalBottomSheetState, coroutineScope: CoroutineScope
-    ) = coroutineScope.launch {
-        sheetState.show()
-    }
-
-    @OptIn(ExperimentalMaterialApi::class)
-    private fun hideBottomSheetPlace(
-        sheetState: ModalBottomSheetState, coroutineScope: CoroutineScope
-    ) = coroutineScope.launch {
-        sheetState.hide()
-    }
-
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         mMap.setOnMarkerClickListener(this)
@@ -319,6 +325,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnMyLocationButton
                 }
             }
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        mapKitUtil.start()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        mapKitUtil.stop()
     }
 
     companion object {
