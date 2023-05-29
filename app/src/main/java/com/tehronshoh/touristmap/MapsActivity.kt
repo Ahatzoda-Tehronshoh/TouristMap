@@ -44,6 +44,7 @@ import com.tehronshoh.touristmap.models.Place
 import com.yandex.mapkit.Animation
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.CameraPosition
+import com.yandex.mapkit.map.MapObjectTapListener
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -99,11 +100,29 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnMyLocationButton
             currentPosition?.latitude ?: 38.57935204500182,
             currentPosition?.longitude ?: 68.79011909252935
         )
-        mapKitUtil.initialize(
-            context = this,
-            cameraPosition = CameraPosition(point, 8f, 0f, 0f),
-            animation = Animation(Animation.Type.SMOOTH, 1000f)
-        )
+        mapKitUtil.apply {
+            initialize(
+                context = this@MapsActivity,
+                cameraPosition = CameraPosition(point, 8f, 0f, 0f),
+                animation = Animation(Animation.Type.SMOOTH, 1f),
+                zoomInButton = binding.zoomInButton,
+                zoomOutButton = binding.zoomOutButton
+            )
+
+            val listener = MapObjectTapListener { mapObject, point ->
+                Log.d("TAG_MAP", "onCreate: Tapped!")
+                choosingPlace =
+                    Place("", point.latitude, point.longitude, "")
+                showBottomSheet.value = true
+                true
+            }
+            listOfPlaces.forEach {
+                addPlace(
+                    point = Point(it.latitude, it.longitude),
+                    listener = listener
+                )
+            }
+        }
     }
 
     @OptIn(ExperimentalMaterialApi::class)
