@@ -36,7 +36,7 @@ class MapKitUtil(
     }
     private var drivingSession: DrivingSession? = null
 
-    private val currentZoom = mapView.map.cameraPosition.zoom
+    private var currentZoom = mapView.map.cameraPosition.zoom
 
     fun initialize(
         context: Context,
@@ -50,11 +50,11 @@ class MapKitUtil(
             cameraPosition, animation, null
         )
         zoomInButton.setOnClickListener {
-            val newZoom = currentZoom + 1.0f
+            currentZoom += 1.0f
             mapView.map.move(
                 CameraPosition(
                     mapView.map.cameraPosition.target,
-                    newZoom,
+                    currentZoom,
                     mapView.map.cameraPosition.azimuth,
                     mapView.map.cameraPosition.tilt
                 ), Animation(Animation.Type.SMOOTH, 0.3f), null
@@ -62,12 +62,11 @@ class MapKitUtil(
         }
 
         zoomOutButton.setOnClickListener {
-            val currentZoom = mapView.map.cameraPosition.zoom
-            val newZoom = currentZoom - 1.0f
+            currentZoom -= 1.0f
             mapView.map.move(
                 CameraPosition(
                     mapView.map.cameraPosition.target,
-                    newZoom,
+                    currentZoom,
                     mapView.map.cameraPosition.azimuth,
                     mapView.map.cameraPosition.tilt
                 ), Animation(Animation.Type.SMOOTH, 0.3f), null
