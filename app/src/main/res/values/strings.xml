@@ -2,4 +2,6 @@
     <string name="app_name">TouristMap</string>
     <string name="title_activity_maps">MapsActivity</string>
     <string name="map_id">d201447d5149b134</string>
+    <string name="out_zoom">-</string>
+    <string name="in_zoom">+</string>
 </resources>
