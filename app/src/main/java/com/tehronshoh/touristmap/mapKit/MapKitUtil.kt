@@ -2,20 +2,42 @@ package com.tehronshoh.touristmap.mapKit
 
 import android.content.Context
 import android.widget.Button
-import androidx.core.view.ActionProvider
+import android.widget.Toast
 import com.tehronshoh.touristmap.R
 import com.yandex.mapkit.Animation
 import com.yandex.mapkit.MapKitFactory
+import com.yandex.mapkit.RequestPoint
+import com.yandex.mapkit.RequestPointType
+import com.yandex.mapkit.directions.DirectionsFactory
+import com.yandex.mapkit.directions.driving.DrivingOptions
+import com.yandex.mapkit.directions.driving.DrivingRoute
+import com.yandex.mapkit.directions.driving.DrivingRouter
+import com.yandex.mapkit.directions.driving.DrivingSession
+import com.yandex.mapkit.directions.driving.VehicleOptions
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.CameraPosition
+import com.yandex.mapkit.map.MapObjectCollection
 import com.yandex.mapkit.map.MapObjectTapListener
-import com.yandex.mapkit.map.PlacemarkMapObject
 import com.yandex.mapkit.mapview.MapView
+import com.yandex.runtime.Error
 import com.yandex.runtime.image.ImageProvider
+import com.yandex.runtime.network.NetworkError
+import com.yandex.runtime.network.RemoteError
 
 class MapKitUtil(
     private val mapView: MapView
-) {
+) : DrivingSession.DrivingRouteListener {
+
+    private val mapObjects: MapObjectCollection by lazy {
+        mapView.map.mapObjects.addCollection()
+    }
+    private val drivingRouter: DrivingRouter by lazy {
+        DirectionsFactory.getInstance().createDrivingRouter()
+    }
+    private var drivingSession: DrivingSession? = null
+
+    private val currentZoom = mapView.map.cameraPosition.zoom
+
     fun initialize(
         context: Context,
         cameraPosition: CameraPosition,
@@ -25,12 +47,9 @@ class MapKitUtil(
     ) {
         MapKitFactory.initialize(context)
         mapView.map.move(
-            cameraPosition,
-            animation,
-            null
+            cameraPosition, animation, null
         )
         zoomInButton.setOnClickListener {
-            val currentZoom = mapView.map.cameraPosition.zoom
             val newZoom = currentZoom + 1.0f
             mapView.map.move(
                 CameraPosition(
@@ -38,9 +57,7 @@ class MapKitUtil(
                     newZoom,
                     mapView.map.cameraPosition.azimuth,
                     mapView.map.cameraPosition.tilt
-                ),
-                Animation(Animation.Type.SMOOTH, 0.3f),
-                null
+                ), Animation(Animation.Type.SMOOTH, 0.3f), null
             )
         }
 
@@ -53,13 +70,39 @@ class MapKitUtil(
                     newZoom,
                     mapView.map.cameraPosition.azimuth,
                     mapView.map.cameraPosition.tilt
-                ),
-                Animation(Animation.Type.SMOOTH, 0.3f),
-                null
+                ), Animation(Animation.Type.SMOOTH, 0.3f), null
             )
         }
         mapView.map.isZoomGesturesEnabled = true
         mapView.map.isRotateGesturesEnabled = false
+    }
+
+    fun submitRequest(
+        routeStartLocation: Point,
+        routeEndLocation: Point,
+        requestPointType: RequestPointType = RequestPointType.WAYPOINT
+    ) {
+        val screenCenterLocation = Point(
+            (routeStartLocation.latitude + routeEndLocation.latitude) / 2,
+            (routeStartLocation.longitude + routeEndLocation.longitude) / 2
+        )
+
+        mapView.map.move(
+            CameraPosition(
+                screenCenterLocation, currentZoom, 0f, 0f
+            )
+        )
+
+        drivingSession = drivingRouter.requestRoutes(
+            listOf(
+                RequestPoint(
+                    routeStartLocation, requestPointType, null
+                ),
+                RequestPoint(
+                    routeEndLocation, requestPointType, null
+                )
+            ), DrivingOptions(), VehicleOptions(), this
+        )
     }
 
     fun start() {
@@ -73,25 +116,30 @@ class MapKitUtil(
     }
 
     fun addPlace(
-        point: Point,
-        imageProvider: ImageProvider = ImageProvider.fromResource(
-            mapView.context,
-            R.drawable.ic_launcher_background
-        ),
-        listener: MapObjectTapListener
+        point: Point, imageProvider: ImageProvider = ImageProvider.fromResource(
+            mapView.context, R.drawable.ic_launcher_background
+        ), listener: MapObjectTapListener
     ) {
         mapView.map.mapObjects.addPlacemark(point, imageProvider).addTapListener(listener)
     }
 
     fun addPlaces(
-        points: List<Point>,
-        imageProvider: ImageProvider = ImageProvider.fromResource(
-            mapView.context,
-            R.drawable.place_icon
-        ),
-        listener: MapObjectTapListener
+        points: List<Point>, imageProvider: ImageProvider = ImageProvider.fromResource(
+            mapView.context, R.drawable.place_icon
+        ), listener: MapObjectTapListener
     ) {
-        for (point in points)
-            addPlace(point, imageProvider, listener)
+        for (point in points) addPlace(point, imageProvider, listener)
+    }
+
+    override fun onDrivingRoutes(routes: MutableList<DrivingRoute>) {
+        for (route in routes) mapObjects.addPolyline(route.geometry)
+    }
+
+    override fun onDrivingRoutesError(error: Error) {
+        var errorMessage: String? = "getString(R.string.unknown_error_message)"
+        if (error is RemoteError) errorMessage = "getString(R.string.remote_error_message)"
+        else if (error is NetworkError) errorMessage = "getString(R.string.network_error_message)"
+
+        Toast.makeText(mapView.context, errorMessage, Toast.LENGTH_SHORT).show()
     }
 }

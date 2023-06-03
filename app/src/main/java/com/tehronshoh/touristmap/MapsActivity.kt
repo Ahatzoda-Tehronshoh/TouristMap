@@ -123,6 +123,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, OnMyLocationButton
                 )
             }
         }
+
     }
 
     @OptIn(ExperimentalMaterialApi::class)

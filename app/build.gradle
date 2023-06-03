@@ -86,7 +86,7 @@ dependencies {
 //#######################################################################################################
     // The lite library only contains the map, traffic layer,
     // LocationManager, and UserLocationLayer and lets you download offline maps (in the paid version only).
-    implementation 'com.yandex.android:maps.mobile:4.3.1-lite'
+    //implementation 'com.yandex.android:maps.mobile:4.3.1-lite'
 
     // The full library supplements lite version features with car routing,
     // bike routing, pedestrian routing, and public transport routing,
