@@ -24,6 +24,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback
 import androidx.core.content.ContextCompat
 import com.tehronshoh.touristmap.databinding.ActivityMapsBinding
+import com.tehronshoh.touristmap.extensions.getBitmapFromVectorDrawable
 import com.tehronshoh.touristmap.extensions.hideBottomSheetPlace
 import com.tehronshoh.touristmap.extensions.showBottomSheetPlace
 import com.tehronshoh.touristmap.mapKit.MapKitUtil
@@ -86,7 +87,9 @@ class MapsActivity : AppCompatActivity(), OnRequestPermissionsResultCallback {
                         place.longitude
                     )
                 },
-                ImageProvider.fromResource(this@MapsActivity, R.drawable.location_icon_48),
+                ImageProvider.fromBitmap(
+                    getBitmapFromVectorDrawable(R.drawable.baseline_location_on_24)
+                ),
                 listener
             )
 
