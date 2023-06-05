@@ -5,6 +5,7 @@ import android.widget.Button
 import android.widget.Toast
 import com.tehronshoh.touristmap.R
 import com.yandex.mapkit.Animation
+import com.yandex.mapkit.MapKit
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.RequestPoint
 import com.yandex.mapkit.RequestPointType
@@ -16,6 +17,7 @@ import com.yandex.mapkit.directions.driving.DrivingSession
 import com.yandex.mapkit.directions.driving.VehicleOptions
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.CameraPosition
+import com.yandex.mapkit.map.IconStyle
 import com.yandex.mapkit.map.MapObjectCollection
 import com.yandex.mapkit.map.MapObjectTapListener
 import com.yandex.mapkit.mapview.MapView
@@ -28,6 +30,18 @@ class MapKitUtil(
     private val mapView: MapView
 ) : DrivingSession.DrivingRouteListener {
 
+    private val mapKit: MapKit by lazy {
+        MapKitFactory.getInstance()
+    }
+
+    private val trafficLayer by lazy {
+        mapKit.createTrafficLayer(mapView.mapWindow)
+    }
+
+    private val userLocationLayer by lazy {
+        mapKit.createUserLocationLayer(mapView.mapWindow)
+    }
+
     private val mapObjects: MapObjectCollection by lazy {
         mapView.map.mapObjects.addCollection()
     }
@@ -36,7 +50,8 @@ class MapKitUtil(
     }
     private var drivingSession: DrivingSession? = null
 
-    private var currentZoom = mapView.map.cameraPosition.zoom
+    private val currentZoom
+        get() = mapView.map.cameraPosition.zoom
 
     fun initialize(
         context: Context,
@@ -50,11 +65,10 @@ class MapKitUtil(
             cameraPosition, animation, null
         )
         zoomInButton.setOnClickListener {
-            currentZoom += 1.0f
             mapView.map.move(
                 CameraPosition(
                     mapView.map.cameraPosition.target,
-                    currentZoom,
+                    currentZoom + 1.0f,
                     mapView.map.cameraPosition.azimuth,
                     mapView.map.cameraPosition.tilt
                 ), Animation(Animation.Type.SMOOTH, 0.3f), null
@@ -62,25 +76,26 @@ class MapKitUtil(
         }
 
         zoomOutButton.setOnClickListener {
-            currentZoom -= 1.0f
             mapView.map.move(
                 CameraPosition(
                     mapView.map.cameraPosition.target,
-                    currentZoom,
+                    currentZoom - 1.0f,
                     mapView.map.cameraPosition.azimuth,
                     mapView.map.cameraPosition.tilt
                 ), Animation(Animation.Type.SMOOTH, 0.3f), null
             )
         }
-        mapView.map.isZoomGesturesEnabled = true
+       mapView.map.isZoomGesturesEnabled = true
         mapView.map.isRotateGesturesEnabled = false
     }
 
-    fun submitRequest(
+    fun submitRequestForDrawingRoute(
         routeStartLocation: Point,
         routeEndLocation: Point,
         requestPointType: RequestPointType = RequestPointType.WAYPOINT
     ) {
+        cancelRoute()
+
         val screenCenterLocation = Point(
             (routeStartLocation.latitude + routeEndLocation.latitude) / 2,
             (routeStartLocation.longitude + routeEndLocation.longitude) / 2
@@ -104,6 +119,10 @@ class MapKitUtil(
         )
     }
 
+    fun cancelRoute() {
+        drivingSession?.cancel()
+    }
+
     fun start() {
         MapKitFactory.getInstance().onStart()
         mapView.onStart()
@@ -116,18 +135,28 @@ class MapKitUtil(
 
     fun addPlace(
         point: Point, imageProvider: ImageProvider = ImageProvider.fromResource(
-            mapView.context, R.drawable.ic_launcher_background
+            mapView.context, R.drawable.location_icon_48
         ), listener: MapObjectTapListener
     ) {
-        mapView.map.mapObjects.addPlacemark(point, imageProvider).addTapListener(listener)
+        val placemark = mapView.map.mapObjects.addPlacemark(point, imageProvider)
+        placemark.addTapListener(listener)
     }
 
     fun addPlaces(
         points: List<Point>, imageProvider: ImageProvider = ImageProvider.fromResource(
-            mapView.context, R.drawable.place_icon
+            mapView.context, R.drawable.location_icon_48
         ), listener: MapObjectTapListener
     ) {
-        for (point in points) addPlace(point, imageProvider, listener)
+        mapObjects.addTapListener(listener)
+        mapObjects.addPlacemarks(points, imageProvider, IconStyle())
+    }
+
+    fun changeTrafficVisibility() {
+        trafficLayer.isTrafficVisible = !trafficLayer.isTrafficVisible
+    }
+
+    fun changeUserLocationVisibility() {
+        userLocationLayer.isVisible = !userLocationLayer.isVisible
     }
 
     override fun onDrivingRoutes(routes: MutableList<DrivingRoute>) {

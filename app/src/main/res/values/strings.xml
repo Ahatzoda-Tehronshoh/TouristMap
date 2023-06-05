@@ -4,4 +4,6 @@
     <string name="map_id">d201447d5149b134</string>
     <string name="out_zoom">-</string>
     <string name="in_zoom">+</string>
+    <string name="traffic">T</string>
+    <string name="location">L</string>
 </resources>
