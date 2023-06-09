@@ -1,4 +1,4 @@
-package com.tehronshoh.touristmap.mapKit
+package com.tehronshoh.touristmap.utils
 
 import android.content.Context
 import android.widget.Button

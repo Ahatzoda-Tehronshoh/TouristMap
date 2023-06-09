@@ -1,4 +1,4 @@
-package com.tehronshoh.touristmap.screens
+package com.tehronshoh.touristmap.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -16,14 +16,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -33,7 +30,10 @@ import com.tehronshoh.touristmap.R
 @Composable
 fun AuthorizationScreen(
     fontSize: Float = 32.0f,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onNavigateToLogIn: () -> Unit,
+    onNavigateToRegistration: () -> Unit,
+    onNavigateToMain: () -> Unit
 ) {
     Box(
         modifier = modifier
@@ -45,9 +45,13 @@ fun AuthorizationScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxWidth(0.6f).zIndex(2f).padding(bottom = 48.dp),
         ) {
-            AuthorizationButton(fontSize, stringResource(id = R.string.log_in))
+            AuthorizationButton(fontSize, stringResource(id = R.string.log_in)) {
+                onNavigateToLogIn()
+            }
             Divider(color = Color.Transparent, modifier = Modifier.height(16.dp))
-            AuthorizationButton(fontSize, stringResource(id = R.string.sign_up))
+            AuthorizationButton(fontSize, stringResource(id = R.string.sign_up)) {
+                onNavigateToRegistration()
+            }
         }
         Image(
             painter = painterResource(id = R.drawable.mountains),
@@ -58,7 +62,7 @@ fun AuthorizationScreen(
                 .align(alignment = Alignment.BottomCenter)
         )
         FloatingActionButton(
-            onClick = { },
+            onClick = { onNavigateToMain() },
             modifier = Modifier
                 .align(alignment = Alignment.BottomEnd)
                 .padding(end = 16.dp, bottom = 16.dp),
@@ -75,10 +79,10 @@ fun AuthorizationScreen(
 }
 
 @Composable
-private fun AuthorizationButton(fontSize: Float, text: String) {
+private fun AuthorizationButton(fontSize: Float, text: String, onClick: () -> (Unit)) {
     Button(
         onClick = {
-
+            onClick()
         },
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -96,6 +100,6 @@ private fun AuthorizationButton(fontSize: Float, text: String) {
 
 @Preview
 @Composable
-fun AuthorizationScreenPreview() {
-    AuthorizationScreen()
+private fun AuthorizationScreenPreview() {
+    AuthorizationScreen(onNavigateToLogIn = {}, onNavigateToRegistration = {}, onNavigateToMain = {})
 }

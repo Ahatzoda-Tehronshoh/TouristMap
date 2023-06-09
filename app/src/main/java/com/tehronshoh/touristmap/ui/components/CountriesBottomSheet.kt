@@ -1,4 +1,4 @@
-package com.tehronshoh.touristmap.components
+package com.tehronshoh.touristmap.ui.components
 
 import android.content.DialogInterface
 import android.os.Bundle
@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
@@ -28,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
@@ -94,11 +96,20 @@ fun CountryBottomSheetDialog(
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 if (isLoading) {
-                    Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-                        CircularProgressIndicator()
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
+                    ) {
+                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                     }
                 } else {
-                    Column {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
+                    ) {
                         TextField(
                             value = searchQuery,
                             onValueChange = { searchQuery = it },
@@ -170,7 +181,7 @@ fun CountryListItem(country: Country, onCountrySelected: (Country) -> Unit) {
     ) {
         Text(
             text = country.officialName,
-            fontSize = 24.sp,
+            fontSize = 18.sp,
             modifier = Modifier
                 .fillMaxWidth(0.8f)
                 .padding(vertical = 8.dp)

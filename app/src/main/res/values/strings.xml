@@ -10,5 +10,5 @@
     //Authorization screen strings
     <string name="log_in">Вход</string>
     <string name="sign_up">Регистрация</string>
-    <string name="error_password_no_match">error password</string>
+    <string name="error_password_no_match">do not match</string>
 </resources>

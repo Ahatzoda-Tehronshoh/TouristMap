@@ -1,4 +1,4 @@
-package com.tehronshoh.touristmap
+package com.tehronshoh.touristmap.ui
 
 import android.Manifest
 import android.content.Context
@@ -24,20 +24,18 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.compose.rememberNavController
 import com.tehronshoh.touristmap.databinding.ActivityMapsBinding
-import com.tehronshoh.touristmap.extensions.getBitmapFromVectorDrawable
 import com.tehronshoh.touristmap.extensions.hideBottomSheetPlace
 import com.tehronshoh.touristmap.extensions.showBottomSheetPlace
-import com.tehronshoh.touristmap.mapKit.MapKitUtil
-import com.tehronshoh.touristmap.models.Place
+import com.tehronshoh.touristmap.utils.MapKitUtil
+import com.tehronshoh.touristmap.model.Place
 import com.tehronshoh.touristmap.remote.RetrofitClient
-import com.tehronshoh.touristmap.screens.SignUpScreen
-import com.yandex.mapkit.Animation
+import com.tehronshoh.touristmap.ui.components.PlaceBottomSheet
+import com.tehronshoh.touristmap.ui.navigation.AppNavGraph
+import com.tehronshoh.touristmap.ui.screens.SignUpScreen
 import com.yandex.mapkit.geometry.Point
-import com.yandex.mapkit.map.CameraPosition
 import com.yandex.mapkit.map.MapObjectTapListener
-import com.yandex.runtime.image.ImageProvider
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class MapsActivity : AppCompatActivity(), OnRequestPermissionsResultCallback {
@@ -69,7 +67,12 @@ class MapsActivity : AppCompatActivity(), OnRequestPermissionsResultCallback {
         setContentView(binding.root)
 
         binding.composeView.setContent {
-            SignUpScreen(fragmentManager = supportFragmentManager)
+            val navController = rememberNavController()
+
+            AppNavGraph(
+                fragmentManager = supportFragmentManager,
+                navController = navController
+            )
             //PlaceModalBottomSheetInitialize()
         }
 
@@ -79,11 +82,15 @@ class MapsActivity : AppCompatActivity(), OnRequestPermissionsResultCallback {
         )
 
         lifecycleScope.launch {
-            val result = RetrofitClient.getRetrofitClient().test()
-            if(result.isSuccessful && result.code() == 200 && result.body() != null)
-                Log.d("TAG_TEST", "onCreate: Success: ${result.body()}")
-            else
-                Log.d("TAG_TEST", "onCreate: Error: ${result.errorBody()}")
+            try {
+                val result = RetrofitClient.getRetrofitClient().test()
+                if (result.isSuccessful && result.code() == 200 && result.body() != null)
+                    Log.d("TAG_TEST", "onCreate: Success: ${result.body()}")
+                else
+                    Log.d("TAG_TEST", "onCreate: Error: ${result.errorBody()}")
+            } catch(e: Exception) {
+                Log.d("TAG_TEST", "onCreate: ${e.message}")
+            }
         }
         /*
         mapKitUtil.apply {
@@ -273,7 +280,7 @@ class MapsActivity : AppCompatActivity(), OnRequestPermissionsResultCallback {
                         Manifest.permission.ACCESS_FINE_LOCATION
                     )
                 ) {
-                    applyLocationManager()
+                    //applyLocationManager()
                 }
             }
         }

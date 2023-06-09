@@ -1,4 +1,4 @@
-package com.tehronshoh.touristmap.components
+package com.tehronshoh.touristmap.ui.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -42,10 +42,13 @@ fun PasswordTextField(
     labelText: String = "",
     hasError: Boolean = false,
     onTextChanged: (text: String) -> Unit,
+    onError: (Boolean) -> Unit = {}
 ) {
     val focusManager = LocalFocusManager.current
     val showPassword = remember { mutableStateOf(false) }
     val matchError = remember { mutableStateOf(false) }
+
+    onError(matchError.value)
 
     Column(
         modifier = modifier.fillMaxWidth(0.7f),

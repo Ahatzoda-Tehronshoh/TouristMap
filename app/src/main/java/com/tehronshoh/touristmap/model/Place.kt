@@ -1,4 +1,4 @@
-package com.tehronshoh.touristmap.models
+package com.tehronshoh.touristmap.model
 
 data class Place(
     val name: String,

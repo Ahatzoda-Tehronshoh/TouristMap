@@ -1,4 +1,4 @@
-package com.tehronshoh.touristmap.screens
+package com.tehronshoh.touristmap.ui.screens
 
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -31,7 +31,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.tehronshoh.touristmap.R
-import com.tehronshoh.touristmap.components.PasswordTextField
+import com.tehronshoh.touristmap.ui.components.PasswordTextField
 
 @Composable
 fun SignInScreen() {
@@ -51,23 +51,24 @@ fun SignInScreen() {
     ) {
         OutlinedTextField(value = username,
             onValueChange = { username = it },
-            label = { Text("Username") })
+            label = { Text("Username") },
+            modifier = Modifier.fillMaxWidth(0.7f)
+        )
         Spacer(modifier = Modifier.height(16.dp))
         PasswordTextField(text = password,
             confirmText = password,
             onTextChanged = { text -> password = text },
             label = { Text("Password") })
         Spacer(modifier = Modifier.height(8.dp))
-        ClickableText(
-            text = buildAnnotatedString {
-                withStyle(
-                    style = SpanStyle(
-                        color = Color.Blue, textDecoration = TextDecoration.Underline
-                    )
-                ) {
-                    append("Забыли пароль?")
-                }
-            },
+        ClickableText(text = buildAnnotatedString {
+            withStyle(
+                style = SpanStyle(
+                    color = Color.Blue, textDecoration = TextDecoration.Underline
+                )
+            ) {
+                append("Забыли пароль?")
+            }
+        },
             onClick = {},
             modifier = Modifier.fillMaxWidth(0.7f),
             style = TextStyle(textAlign = TextAlign.End)
@@ -95,6 +96,6 @@ fun SignInScreen() {
 
 @Preview
 @Composable
-fun SignInPreview() {
+private fun SignInPreview() {
     SignInScreen()
 }
