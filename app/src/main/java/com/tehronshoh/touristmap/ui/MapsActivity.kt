@@ -33,7 +33,6 @@ import com.tehronshoh.touristmap.model.Place
 import com.tehronshoh.touristmap.remote.RetrofitClient
 import com.tehronshoh.touristmap.ui.components.PlaceBottomSheet
 import com.tehronshoh.touristmap.ui.navigation.AppNavGraph
-import com.tehronshoh.touristmap.ui.screens.SignUpScreen
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.MapObjectTapListener
 import kotlinx.coroutines.launch
@@ -81,17 +80,6 @@ class MapsActivity : AppCompatActivity(), OnRequestPermissionsResultCallback {
             currentPosition?.longitude ?: 68.79011909252935
         )
 
-        lifecycleScope.launch {
-            try {
-                val result = RetrofitClient.getRetrofitClient().test()
-                if (result.isSuccessful && result.code() == 200 && result.body() != null)
-                    Log.d("TAG_TEST", "onCreate: Success: ${result.body()}")
-                else
-                    Log.d("TAG_TEST", "onCreate: Error: ${result.errorBody()}")
-            } catch(e: Exception) {
-                Log.d("TAG_TEST", "onCreate: ${e.message}")
-            }
-        }
         /*
         mapKitUtil.apply {
             initialize(

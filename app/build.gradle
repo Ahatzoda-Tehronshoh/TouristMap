@@ -61,7 +61,9 @@ dependencies {
     implementation 'androidx.compose.ui:ui:1.4.3'
     implementation 'androidx.compose.material:material:1.4.3'
     implementation 'androidx.compose.runtime:runtime:1.4.3'
-    
+
+    implementation "androidx.compose.runtime:runtime-livedata:1.4.3"
+
     implementation 'androidx.activity:activity-compose:1.8.0-alpha05'
 
     // Foundation (Border, Background, Box, Image, Scroll, shapes, animations, etc.)
@@ -84,11 +86,12 @@ dependencies {
     //Retrofit2
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-scalars:2.9.0'
 
     //GLIDE
     implementation "com.github.bumptech.glide:compose:1.0.0-alpha.1"
 //#######################################################################################################
-                                /*** YANDEX MapKit ***/
+    /*** YANDEX MapKit ***/
 //#######################################################################################################
     // The lite library only contains the map, traffic layer,
     // LocationManager, and UserLocationLayer and lets you download offline maps (in the paid version only).
@@ -97,5 +100,5 @@ dependencies {
     // The full library supplements lite version features with car routing,
     // bike routing, pedestrian routing, and public transport routing,
     // search, suggest, geocoding, and panorama display.
-    implementation 'com.yandex.android:maps.mobile:4.3.1-full' 
+    implementation 'com.yandex.android:maps.mobile:4.3.1-full'
 }

@@ -29,8 +29,8 @@ import com.tehronshoh.touristmap.R
 
 @Composable
 fun AuthorizationScreen(
-    fontSize: Float = 32.0f,
     modifier: Modifier = Modifier,
+    fontSize: Float = 32.0f,
     onNavigateToLogIn: () -> Unit,
     onNavigateToRegistration: () -> Unit,
     onNavigateToMain: () -> Unit

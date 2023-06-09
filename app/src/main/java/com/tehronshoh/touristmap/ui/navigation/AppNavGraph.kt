@@ -1,14 +1,28 @@
 package com.tehronshoh.touristmap.ui.navigation
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.fragment.app.FragmentManager
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.tehronshoh.touristmap.extensions.sharedViewModel
+import com.tehronshoh.touristmap.model.NetworkResult
+import com.tehronshoh.touristmap.model.User
 import com.tehronshoh.touristmap.ui.screens.AuthorizationScreen
+import com.tehronshoh.touristmap.ui.screens.MainScreen
 import com.tehronshoh.touristmap.ui.screens.SignInScreen
 import com.tehronshoh.touristmap.ui.screens.SignUpScreen
+import com.tehronshoh.touristmap.viewmodel.SignInViewModel
+import com.tehronshoh.touristmap.viewmodel.SignUpViewModel
 
 @Composable
 fun AppNavGraph(
@@ -16,14 +30,20 @@ fun AppNavGraph(
     navController: NavHostController,
     modifier: Modifier = Modifier
 ) {
-    NavHost(navController = navController, startDestination = Screen.Authorization.route, modifier = modifier) {
+    val context = LocalContext.current
+
+    NavHost(
+        navController = navController,
+        startDestination = Screen.Authorization.route,
+        modifier = modifier
+    ) {
         composable(route = Screen.Authorization.route) {
             AuthorizationScreen(
                 onNavigateToLogIn = {
                     navController.navigate(Screen.LogIn.route)
                 },
                 onNavigateToMain = {
-                    //navController.navigate(Screen.Main.route)
+                    navController.navigate(Screen.Main.route)
                 },
                 onNavigateToRegistration = {
                     navController.navigate(Screen.Registration.route)
@@ -32,11 +52,77 @@ fun AppNavGraph(
         }
 
         composable(route = Screen.LogIn.route) {
-            SignInScreen()
+            val signInViewModel = it.sharedViewModel<SignInViewModel>(navController = navController)
+
+            var isLoading by remember { mutableStateOf(false) }
+
+            val registrationResult = signInViewModel.logInResult.observeAsState()
+            when (val res = registrationResult.value) {
+                is NetworkResult.Loading<List<User>> -> {
+                    isLoading = true
+                }
+
+                is NetworkResult.Success<List<User>> -> {
+                    isLoading = false
+                    if (res.data!!.size == 1) {
+                        navController.navigate(Screen.Main.route)
+                    } else {
+                        Log.d("TAG_AUTH", "AppNavGraph: Wrong!")
+                        Toast.makeText(
+                            context,
+                            "Password or Email is wrong! try Again!",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+
+                is NetworkResult.Error<List<User>> -> {
+                    isLoading = false
+                    Log.d("TAG_AUTH", "AppNavGraph: ${res.message}")
+                    Toast.makeText(context, res.message, Toast.LENGTH_SHORT).show()
+                }
+
+                else -> {}
+            }
+
+            SignInScreen(isLoading = isLoading) { user ->
+                signInViewModel.signIn(user)
+            }
         }
 
         composable(route = Screen.Registration.route) {
-            SignUpScreen(fragmentManager = fragmentManager)
+            val viewModel = it.sharedViewModel<SignUpViewModel>(navController = navController)
+
+            var isLoading by remember { mutableStateOf(false) }
+
+            val registrationResult = viewModel.registrationResult.observeAsState()
+            when (val res = registrationResult.value) {
+                is NetworkResult.Loading<String> -> {
+                    isLoading = true
+                }
+
+                is NetworkResult.Success<String> -> {
+                    isLoading = false
+                    navController.navigate(Screen.Main.route)
+                }
+
+                is NetworkResult.Error<String> -> {
+                    isLoading = false
+                    Log.d("TAG_AUTH", "AppNavGraph: ${res.message}")
+                    Toast.makeText(context, res.message, Toast.LENGTH_SHORT)
+                        .show()
+                }
+
+                else -> {}
+            }
+
+            SignUpScreen(fragmentManager = fragmentManager, isLoading = isLoading) { user ->
+                viewModel.registration(user)
+            }
+        }
+
+        composable(route = Screen.Main.route) {
+            MainScreen()
         }
     }
 }

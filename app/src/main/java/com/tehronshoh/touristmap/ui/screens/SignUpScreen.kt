@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,6 +27,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.fragment.app.FragmentManager
 import com.tehronshoh.touristmap.R
 import com.tehronshoh.touristmap.extensions.isValidEmail
@@ -33,12 +35,17 @@ import com.tehronshoh.touristmap.ui.components.CountryBottomSheetDialog
 import com.tehronshoh.touristmap.ui.components.CountryListItem
 import com.tehronshoh.touristmap.ui.components.PasswordTextField
 import com.tehronshoh.touristmap.model.Country
+import com.tehronshoh.touristmap.model.User
 
 const val TJK_NAME = "Republic of Tajikistan"
 const val TJK_FLAG_URL = "https://flagcdn.com/w320/tj.png"
 
 @Composable
-fun SignUpScreen(fragmentManager: FragmentManager) {
+fun SignUpScreen(
+    fragmentManager: FragmentManager,
+    isLoading: Boolean,
+    onRegistrate: (User) -> Unit
+) {
     var nickname by remember { mutableStateOf("") }
 
     var login by remember { mutableStateOf("") }
@@ -54,70 +61,92 @@ fun SignUpScreen(fragmentManager: FragmentManager) {
         mutableStateOf(false)
     }
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = colorResource(id = R.color.blue_200)),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+            .background(color = colorResource(id = R.color.blue_200))
     ) {
-        OutlinedTextField(
-            value = nickname,
-            onValueChange = { nickname = it },
-            label = { Text("NickName") },
-            modifier = Modifier.fillMaxWidth(0.7f)
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        OutlinedTextField(
-            value = login,
-            onValueChange = {
-                login = it
-                isValidEmail = it.isValidEmail()
-            },
-            isError = !isValidEmail && login.isNotEmpty(),
-            label = { Text("Login(email)") },
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Email
-            ),
-            visualTransformation = VisualTransformation.None,
-            modifier = Modifier.fillMaxWidth(0.7f)
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        PasswordTextField(text = password,
-            confirmText = password,
-            onTextChanged = { password = it },
-            label = { Text("Password") })
-        Spacer(modifier = Modifier.height(8.dp))
-        PasswordTextField(text = confirmPassword,
-            confirmText = password,
-            onTextChanged = { confirmPassword = it },
-            onError = { passwordMatch = (!it && (password.length > 4)) },
-            label = { Text("Confirm Password") })
-        if (bottomSheetShowing) CountryBottomSheetDialog(fragmentManager = fragmentManager,
-            onCancel = {
-                bottomSheetShowing = false
-            }) {
-            bottomSheetShowing = false
-            country = it
-        }
-        Box(modifier = Modifier
-            .fillMaxWidth(0.7f)
-            .clickable {
-                bottomSheetShowing = true
-            }) {
-            CountryListItem(country = country, onCountrySelected = {
-                bottomSheetShowing = true
-            })
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(
-            onClick = {
+        if (isLoading)
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .zIndex(2f), contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(modifier = Modifier.align(alignment = Alignment.Center))
+            }
 
-            },
-            enabled = isValidEmail && passwordMatch && nickname.isNotEmpty(),
-            modifier = Modifier.fillMaxWidth(0.6f)
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = colorResource(id = R.color.blue_200)),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Регистрировать")
+            OutlinedTextField(
+                value = nickname,
+                onValueChange = { nickname = it },
+                label = { Text("NickName") },
+                modifier = Modifier.fillMaxWidth(0.7f)
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            OutlinedTextField(
+                value = login,
+                onValueChange = {
+                    login = it
+                    isValidEmail = it.isValidEmail()
+                },
+                isError = !isValidEmail && login.isNotEmpty(),
+                label = { Text("Login(email)") },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Email
+                ),
+                visualTransformation = VisualTransformation.None,
+                modifier = Modifier.fillMaxWidth(0.7f)
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            PasswordTextField(text = password,
+                confirmText = password,
+                onTextChanged = { password = it },
+                label = { Text("Password") })
+            Spacer(modifier = Modifier.height(8.dp))
+            PasswordTextField(text = confirmPassword,
+                confirmText = password,
+                onTextChanged = { confirmPassword = it },
+                onError = { passwordMatch = (!it && (password.length >= 4)) },
+                label = { Text("Confirm Password") })
+            if (bottomSheetShowing) CountryBottomSheetDialog(fragmentManager = fragmentManager,
+                onCancel = {
+                    bottomSheetShowing = false
+                }) {
+                bottomSheetShowing = false
+                country = it
+            }
+            Box(modifier = Modifier
+                .fillMaxWidth(0.7f)
+                .clickable {
+                    bottomSheetShowing = true
+                }) {
+                CountryListItem(country = country, onCountrySelected = {
+                    bottomSheetShowing = true
+                })
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = {
+                    onRegistrate(
+                        User(
+                            nickName = nickname,
+                            login = login,
+                            password = password,
+                            country = "${country.officialName}#${country.pngUrl}"
+                        )
+                    )
+                },
+                enabled = isValidEmail && passwordMatch && nickname.isNotEmpty(),
+                modifier = Modifier.fillMaxWidth(0.6f)
+            ) {
+                Text("Регистрировать")
+            }
         }
     }
 }
