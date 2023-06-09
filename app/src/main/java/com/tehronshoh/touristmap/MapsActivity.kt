@@ -23,18 +23,22 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import com.tehronshoh.touristmap.databinding.ActivityMapsBinding
 import com.tehronshoh.touristmap.extensions.getBitmapFromVectorDrawable
 import com.tehronshoh.touristmap.extensions.hideBottomSheetPlace
 import com.tehronshoh.touristmap.extensions.showBottomSheetPlace
 import com.tehronshoh.touristmap.mapKit.MapKitUtil
 import com.tehronshoh.touristmap.models.Place
+import com.tehronshoh.touristmap.remote.RetrofitClient
 import com.tehronshoh.touristmap.screens.SignUpScreen
 import com.yandex.mapkit.Animation
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.CameraPosition
 import com.yandex.mapkit.map.MapObjectTapListener
 import com.yandex.runtime.image.ImageProvider
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class MapsActivity : AppCompatActivity(), OnRequestPermissionsResultCallback {
 
@@ -73,6 +77,14 @@ class MapsActivity : AppCompatActivity(), OnRequestPermissionsResultCallback {
             currentPosition?.latitude ?: 38.57935204500182,
             currentPosition?.longitude ?: 68.79011909252935
         )
+
+        lifecycleScope.launch {
+            val result = RetrofitClient.getRetrofitClient().test()
+            if(result.isSuccessful && result.code() == 200 && result.body() != null)
+                Log.d("TAG_TEST", "onCreate: Success: ${result.body()}")
+            else
+                Log.d("TAG_TEST", "onCreate: Error: ${result.errorBody()}")
+        }
         /*
         mapKitUtil.apply {
             initialize(
