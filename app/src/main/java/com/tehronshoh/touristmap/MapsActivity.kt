@@ -29,6 +29,7 @@ import com.tehronshoh.touristmap.extensions.hideBottomSheetPlace
 import com.tehronshoh.touristmap.extensions.showBottomSheetPlace
 import com.tehronshoh.touristmap.mapKit.MapKitUtil
 import com.tehronshoh.touristmap.models.Place
+import com.tehronshoh.touristmap.screens.SignUpScreen
 import com.yandex.mapkit.Animation
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.CameraPosition
@@ -64,13 +65,15 @@ class MapsActivity : AppCompatActivity(), OnRequestPermissionsResultCallback {
         setContentView(binding.root)
 
         binding.composeView.setContent {
-            PlaceModalBottomSheetInitialize()
+            SignUpScreen(fragmentManager = supportFragmentManager)
+            //PlaceModalBottomSheetInitialize()
         }
 
         val point = Point(
             currentPosition?.latitude ?: 38.57935204500182,
             currentPosition?.longitude ?: 68.79011909252935
         )
+        /*
         mapKitUtil.apply {
             initialize(
                 context = this@MapsActivity,
@@ -98,7 +101,7 @@ class MapsActivity : AppCompatActivity(), OnRequestPermissionsResultCallback {
         }
 
         setListeners()
-
+        */
     }
 
     private val listener = MapObjectTapListener { _, point ->

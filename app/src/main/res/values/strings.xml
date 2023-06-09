@@ -6,4 +6,9 @@
     <string name="in_zoom">+</string>
     <string name="traffic">T</string>
     <string name="location">L</string>
+    
+    //Authorization screen strings
+    <string name="log_in">Вход</string>
+    <string name="sign_up">Регистрация</string>
+    <string name="error_password_no_match">error password</string>
 </resources>

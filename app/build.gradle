@@ -62,13 +62,19 @@ dependencies {
     implementation 'androidx.compose.material:material:1.4.3'
     implementation 'androidx.compose.runtime:runtime:1.4.3'
     
-    implementation 'androidx.activity:activity-compose:1.8.0-alpha04'
+    implementation 'androidx.activity:activity-compose:1.8.0-alpha05'
 
     // Foundation (Border, Background, Box, Image, Scroll, shapes, animations, etc.)
     implementation "androidx.compose.foundation:foundation:1.4.3"
 
     // Material Design
     implementation "androidx.compose.material3:material3:1.1.0"
+
+    // Material Design Icons
+    implementation "androidx.compose.material:material-icons-extended:1.4.3"
+
+    // Navigation with Compose
+    implementation "androidx.navigation:navigation-compose:2.5.3"
 
     // Coroutines
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
@@ -80,6 +86,8 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
 
 
+    //GLIDE
+    implementation "com.github.bumptech.glide:compose:1.0.0-alpha.1"
 //#######################################################################################################
                                 /*** YANDEX MapKit ***/
 //#######################################################################################################

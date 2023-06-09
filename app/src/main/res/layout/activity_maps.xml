@@ -6,6 +6,7 @@
 
     <com.yandex.mapkit.mapview.MapView
         android:id="@+id/yandex_map_view"
+        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
                <Button
@@ -51,7 +52,6 @@
         android:id="@+id/compose_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

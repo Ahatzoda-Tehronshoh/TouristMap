@@ -3,7 +3,6 @@ package com.tehronshoh.touristmap.mapKit
 import android.content.Context
 import android.widget.Button
 import android.widget.Toast
-import com.tehronshoh.touristmap.R
 import com.yandex.mapkit.Animation
 import com.yandex.mapkit.MapKit
 import com.yandex.mapkit.MapKitFactory
@@ -85,7 +84,7 @@ class MapKitUtil(
                 ), Animation(Animation.Type.SMOOTH, 0.3f), null
             )
         }
-       mapView.map.isZoomGesturesEnabled = true
+        mapView.map.isZoomGesturesEnabled = true
         mapView.map.isRotateGesturesEnabled = false
     }
 
@@ -119,7 +118,7 @@ class MapKitUtil(
         )
     }
 
-    fun cancelRoute() {
+    private fun cancelRoute() {
         drivingSession?.cancel()
     }
 
@@ -133,19 +132,8 @@ class MapKitUtil(
         mapView.onStop()
     }
 
-    fun addPlace(
-        point: Point, imageProvider: ImageProvider = ImageProvider.fromResource(
-            mapView.context, R.drawable.location_icon_48
-        ), listener: MapObjectTapListener
-    ) {
-        val placemark = mapView.map.mapObjects.addPlacemark(point, imageProvider)
-        placemark.addTapListener(listener)
-    }
-
     fun addPlaces(
-        points: List<Point>, imageProvider: ImageProvider = ImageProvider.fromResource(
-            mapView.context, R.drawable.location_icon_48
-        ), listener: MapObjectTapListener
+        points: List<Point>, imageProvider: ImageProvider, listener: MapObjectTapListener
     ) {
         mapObjects.addTapListener(listener)
         mapObjects.addPlacemarks(points, imageProvider, IconStyle())
