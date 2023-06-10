@@ -1,35 +1,32 @@
 package com.tehronshoh.touristmap.viewmodel
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.tehronshoh.touristmap.model.NetworkResult
 import com.tehronshoh.touristmap.model.User
 import com.tehronshoh.touristmap.remote.RemoteRepository
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 
 class SignUpViewModel : ViewModel() {
     private val remoteRepository = RemoteRepository()
 
-    private var _registrationResult = MutableLiveData<NetworkResult<String>>()
-    val registrationResult: LiveData<NetworkResult<String>> = _registrationResult
-
-    fun registration(user: User) = viewModelScope.launch(Dispatchers.IO) {
+    fun registration(user: User): Flow<NetworkResult<String>> = flow {
         try {
-            _registrationResult.postValue(NetworkResult.Loading())
+            emit(NetworkResult.Loading())
 
             val result = remoteRepository.registration(user)
 
-            _registrationResult.postValue(
+            emit(
                 if (result.isSuccessful && result.code() == 200 && result.body() != null)
                     NetworkResult.Success(result.body()!!)
                 else
                     NetworkResult.Error(result.message() + result.errorBody() + result.code())
             )
         } catch (e: Exception) {
-            _registrationResult.postValue(NetworkResult.Error(e.message ?: "Try again!"))
+            emit(NetworkResult.Error(e.message ?: "Try again!"))
         }
-    }
+    }.flowOn(Dispatchers.IO)
 }

@@ -35,7 +35,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.tehronshoh.touristmap.R
-import com.tehronshoh.touristmap.extensions.isValidEmail
 import com.tehronshoh.touristmap.model.User
 import com.tehronshoh.touristmap.ui.components.PasswordTextField
 
@@ -45,7 +44,6 @@ fun SignInScreen(
     onLogIn: (User) -> Unit
 ) {
     var login by remember { mutableStateOf("") }
-    var isValidEmail by remember { mutableStateOf(false) }
 
     var password by remember { mutableStateOf("") }
 
@@ -74,9 +72,7 @@ fun SignInScreen(
                 value = login,
                 onValueChange = {
                     login = it
-                    isValidEmail = it.isValidEmail()
                 },
-                isError = !isValidEmail && login.isNotEmpty(),
                 label = { Text("Login(email) or NickName") },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email
@@ -116,7 +112,7 @@ fun SignInScreen(
                         )
                     )
                 },
-                enabled = isValidEmail && (password.length >= 4),
+                enabled = (password.length >= 4),
                 modifier = Modifier.fillMaxWidth(0.5f)
             ) {
                 Text("Вход")
@@ -128,5 +124,5 @@ fun SignInScreen(
 @Preview
 @Composable
 private fun SignInPreview() {
-    SignInScreen(true) {}
+    com.tehronshoh.touristmap.ui.screens.SignInScreen(true) {}
 }
