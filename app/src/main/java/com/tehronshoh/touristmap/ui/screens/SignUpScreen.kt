@@ -107,13 +107,13 @@ fun SignUpScreen(
             PasswordTextField(text = password,
                 confirmText = password,
                 onTextChanged = { password = it },
-                label = { Text("Password") })
+                placeholder = { Text("Password") })
             Spacer(modifier = Modifier.height(8.dp))
             PasswordTextField(text = confirmPassword,
                 confirmText = password,
                 onTextChanged = { confirmPassword = it },
                 onError = { passwordMatch = (!it && (password.length >= 4)) },
-                label = { Text("Confirm Password") })
+                placeholder = { Text("Confirm Password") })
             if (bottomSheetShowing) CountryBottomSheetDialog(fragmentManager = fragmentManager,
                 onCancel = {
                     bottomSheetShowing = false

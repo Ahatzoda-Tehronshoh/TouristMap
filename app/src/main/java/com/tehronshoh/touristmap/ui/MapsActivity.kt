@@ -66,13 +66,15 @@ class MapsActivity : AppCompatActivity(), OnRequestPermissionsResultCallback {
         setContentView(binding.root)
 
         binding.composeView.setContent {
-            val navController = rememberNavController()
+            AppTheme {
+                val navController = rememberNavController()
 
-            AppNavGraph(
-                fragmentManager = supportFragmentManager,
-                navController = navController
-            )
-            //PlaceModalBottomSheetInitialize()
+                AppNavGraph(
+                    fragmentManager = supportFragmentManager,
+                    navController = navController
+                )
+                //PlaceModalBottomSheetInitialize()
+            }
         }
 
         val point = Point(

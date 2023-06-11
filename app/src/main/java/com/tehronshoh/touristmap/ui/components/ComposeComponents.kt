@@ -1,25 +1,33 @@
 package com.tehronshoh.touristmap.ui.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -36,10 +44,9 @@ import com.tehronshoh.touristmap.R
 fun PasswordTextField(
     text: String,
     confirmText: String,
-    label: @Composable () -> Unit,
+    placeholder: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     semanticContentDescription: String = "",
-    labelText: String = "",
     hasError: Boolean = false,
     onTextChanged: (text: String) -> Unit,
     onError: (Boolean) -> Unit = {}
@@ -51,16 +58,12 @@ fun PasswordTextField(
     onError(matchError.value)
 
     Column(
-        modifier = modifier.fillMaxWidth(0.7f),
+        modifier = modifier.fillMaxWidth(),
     ) {
-        OutlinedTextField(value = text,
+        TextField(
+            value = text,
             onValueChange = onTextChanged,
-            label = label,
-            placeholder = {
-                Text(
-                    text = labelText, color = Color.White, fontSize = 16.sp
-                )
-            },
+            placeholder = placeholder,
             keyboardOptions = KeyboardOptions.Default.copy(
                 autoCorrect = true, keyboardType = KeyboardType.Text, imeAction = ImeAction.Done
             ),
@@ -86,15 +89,29 @@ fun PasswordTextField(
                         icon, contentDescription = "Visibility", tint = iconColor
                     )
                 }
-            },/*colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedBorderColor = Color.White,
-                unfocusedBorderColor = Color.White,
-                textColor = Color.White,
-                cursorColor = Color.White,
-            ),*/
+            },
+            leadingIcon = {
+                Icon(
+                    imageVector = ImageVector.vectorResource(id = R.drawable.password_icon),
+                    contentDescription = "password",
+                    tint = colorResource(id = R.color.primary),
+                    modifier = Modifier.padding(start = 8.dp)
+                )
+            },
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                disabledContainerColor = Color.Transparent,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent,
+            ),
             modifier = Modifier
+                .clip(RoundedCornerShape(40.dp))
                 .fillMaxWidth()
-                .semantics { contentDescription = semanticContentDescription })
+                .background(color = colorResource(id = R.color.primary_100))
+                .semantics { contentDescription = semanticContentDescription }
+        )
         Spacer(modifier = Modifier.height(8.dp))
         if (confirmText != text) {
             Text(
