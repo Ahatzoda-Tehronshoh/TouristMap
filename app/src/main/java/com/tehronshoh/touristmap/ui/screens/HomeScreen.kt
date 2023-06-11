@@ -13,7 +13,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.tehronshoh.touristmap.R
 
 @Composable
-fun MainScreen() {
+fun HomeScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -22,13 +22,13 @@ fun MainScreen() {
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "Main Screen"
+            text = "Home Screen"
         )
     }
 }
 
 @Preview
 @Composable
-private fun MainScreenPreview() {
-    MainScreen()
+private fun HomeScreenPreview() {
+    HomeScreen()
 }

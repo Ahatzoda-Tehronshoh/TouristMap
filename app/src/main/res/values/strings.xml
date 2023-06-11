@@ -11,4 +11,7 @@
     <string name="log_in">Вход</string>
     <string name="sign_up">Регистрация</string>
     <string name="error_password_no_match">do not match</string>
+
+    <string name="main">Main</string>
+    <string name="profile">Profile</string>
 </resources>

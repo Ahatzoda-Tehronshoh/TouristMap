@@ -18,7 +18,7 @@ import com.tehronshoh.touristmap.extensions.sharedViewModel
 import com.tehronshoh.touristmap.model.NetworkResult
 import com.tehronshoh.touristmap.model.User
 import com.tehronshoh.touristmap.ui.screens.AuthorizationScreen
-import com.tehronshoh.touristmap.ui.screens.MainScreen
+import com.tehronshoh.touristmap.ui.screens.HomeScreen
 import com.tehronshoh.touristmap.ui.screens.SignInScreen
 import com.tehronshoh.touristmap.ui.screens.SignUpScreen
 import com.tehronshoh.touristmap.viewmodel.SignInViewModel
@@ -45,7 +45,7 @@ fun AppNavGraph(
                     navController.navigate(Screen.LogIn.route)
                 },
                 onNavigateToMain = {
-                    navController.navigate(Screen.Main.route)
+                    navController.navigate(Screen.Home.route)
                 },
                 onNavigateToRegistration = {
                     navController.navigate(Screen.Registration.route)
@@ -70,7 +70,7 @@ fun AppNavGraph(
                             is NetworkResult.Success<List<User>> -> {
                                 isLoading = false
                                 if (result.data!!.size == 1) {
-                                    navController.navigate(Screen.Main.route)
+                                    navController.navigate(Screen.Home.route)
                                 } else {
                                     Log.d("TAG_AUTH", "AppNavGraph: Wrong!")
                                     Toast.makeText(
@@ -108,7 +108,7 @@ fun AppNavGraph(
 
                             is NetworkResult.Success<String> -> {
                                 isLoading = false
-                                navController.navigate(Screen.Main.route)
+                                navController.navigate(Screen.Home.route)
                             }
 
                             is NetworkResult.Error<String> -> {
@@ -123,8 +123,8 @@ fun AppNavGraph(
             }
         }
 
-        composable(route = Screen.Main.route) {
-            MainScreen()
+        composable(route = Screen.Home.route) {
+            HomeScreen()
         }
     }
 }
