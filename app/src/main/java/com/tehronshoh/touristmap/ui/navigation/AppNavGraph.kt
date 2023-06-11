@@ -21,6 +21,7 @@ import com.tehronshoh.touristmap.ui.screens.AuthorizationScreen
 import com.tehronshoh.touristmap.ui.screens.HomeScreen
 import com.tehronshoh.touristmap.ui.screens.SignInScreen
 import com.tehronshoh.touristmap.ui.screens.SignUpScreen
+import com.tehronshoh.touristmap.ui.screens.SplashScreen
 import com.tehronshoh.touristmap.viewmodel.SignInViewModel
 import com.tehronshoh.touristmap.viewmodel.SignUpViewModel
 import kotlinx.coroutines.Dispatchers
@@ -36,9 +37,19 @@ fun AppNavGraph(
 
     NavHost(
         navController = navController,
-        startDestination = Screen.Authorization.route,
+        startDestination = Screen.SplashScreen.route,
         modifier = modifier
     ) {
+        composable(route = Screen.SplashScreen.route) {
+            SplashScreen {
+                navController.navigate(Screen.Authorization.route) {
+                    popUpTo(route = Screen.SplashScreen.route) {
+                        inclusive = true
+                    }
+                }
+            }
+        }
+
         composable(route = Screen.Authorization.route) {
             AuthorizationScreen(
                 onNavigateToLogIn = {
