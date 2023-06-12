@@ -1,19 +1,8 @@
 package com.tehronshoh.touristmap.ui.screens.home
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -27,13 +16,13 @@ import com.tehronshoh.touristmap.ui.navigation.Screen
 object HomeScreen {
     val BottomNavItems = listOf(
         BottomNavItem(
-            label = "Главная",
+            label = Screen.Main.labelId!!,
             activeIcon = R.drawable.main_active_icon,
             inactiveIcon = R.drawable.main_inactive_icon,
             route = Screen.Main.route
         ),
         BottomNavItem(
-            label = "Профиль",
+            label = Screen.Profile.labelId!!,
             activeIcon = R.drawable.profile_active_icon,
             inactiveIcon = R.drawable.profile_inactive_icon,
             route = Screen.Profile.route

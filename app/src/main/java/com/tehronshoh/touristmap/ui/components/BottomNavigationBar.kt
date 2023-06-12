@@ -22,6 +22,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -111,11 +112,11 @@ fun BottomNavigationBar(navController: NavHostController) {
                     ) {
                         Image(
                             imageVector = ImageVector.vectorResource(id = icon),
-                            contentDescription = navItem.label
+                            contentDescription = stringResource(id = navItem.label)
                         )
                         Divider(modifier = Modifier.width(10.dp))
                         Text(
-                            text = navItem.label,
+                            text =  stringResource(navItem.label),
                             fontFamily = FontFamily(Font(resId = R.font.montserrat_600)),
                             fontSize = 12.sp,
                             style = TextStyle(color = labelColor, fontWeight = FontWeight.W500)

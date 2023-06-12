@@ -12,7 +12,9 @@
     <string name="sign_up">Регистрация</string>
     <string name="error_password_no_match">do not match</string>
 
-    <string name="main">Main</string>
-    <string name="profile">Profile</string>
+    <string name="main">Главная</string>
+    <string name="profile">Профиль</string>
+    <string name="search">Поиск</string>
+    <string name="map">Карта</string>
     <string name="tajikguide">TajikGuide</string>
 </resources>
