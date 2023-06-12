@@ -73,6 +73,8 @@ const val TJK_FLAG_URL = "https://flagcdn.com/w320/tj.png"
 fun SignUpScreen(
     fragmentManager: FragmentManager,
     isLoading: Boolean,
+    onNavigateToLogIn: () -> Unit,
+    onNavigateToMainWithoutLogIn: () -> Unit,
     onRegistrate: (User) -> Unit
 ) {
 
@@ -94,14 +96,20 @@ fun SignUpScreen(
             }
 
         SignUpContent(
-            fragmentManager, onRegistrate
+            fragmentManager = fragmentManager,
+            onNavigateToLogIn = onNavigateToLogIn,
+            onNavigateToMainWithoutLogIn = onNavigateToMainWithoutLogIn,
+            onRegistrate = onRegistrate
         )
     }
 }
 
 @Composable
 private fun SignUpContent(
-    fragmentManager: FragmentManager, onRegistrate: (User) -> Unit
+    fragmentManager: FragmentManager,
+    onNavigateToLogIn: () -> Unit,
+    onNavigateToMainWithoutLogIn: () -> Unit,
+    onRegistrate: (User) -> Unit
 ) {
     val verticalScroll = rememberScrollState()
 
@@ -224,7 +232,10 @@ private fun SignUpContent(
                     Text("Регистрация")
                 }
 
-                ClickableContainer()
+                ClickableContainer(
+                    onNavigateToLogIn = onNavigateToLogIn,
+                    onNavigateToMainWithoutLogIn = onNavigateToMainWithoutLogIn
+                )
             }
         }
     }
@@ -444,7 +455,10 @@ private fun ScreenName() {
 }
 
 @Composable
-private fun ClickableContainer() {
+private fun ClickableContainer(
+    onNavigateToLogIn: () -> Unit,
+    onNavigateToMainWithoutLogIn: () -> Unit,
+) {
     Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         ClickableText(text = buildAnnotatedString {
             append("У вас есть аккаунт? ")
@@ -456,7 +470,7 @@ private fun ClickableContainer() {
             ) {
                 append("Вход")
             }
-        }, onClick = {})
+        }, onClick = { onNavigateToLogIn() })
         Spacer(modifier = Modifier.height(8.dp))
         ClickableText(text = buildAnnotatedString {
             withStyle(
@@ -467,7 +481,7 @@ private fun ClickableContainer() {
             ) {
                 append("Войти как гость")
             }
-        }, onClick = {})
+        }, onClick = { onNavigateToMainWithoutLogIn() })
     }
 }
 
@@ -476,6 +490,9 @@ private fun ClickableContainer() {
 private fun SignUpScreenPreview() {
     val previewFragmentManager = object : FragmentManager() {}
     SignUpScreen(
-        fragmentManager = previewFragmentManager, isLoading = false
+        fragmentManager = previewFragmentManager,
+        onNavigateToLogIn = {},
+        onNavigateToMainWithoutLogIn = {},
+        isLoading = false
     ) {}
 }

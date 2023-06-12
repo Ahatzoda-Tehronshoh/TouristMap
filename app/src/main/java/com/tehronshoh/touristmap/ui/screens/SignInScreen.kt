@@ -59,7 +59,10 @@ import com.tehronshoh.touristmap.ui.components.TopImage
 
 @Composable
 fun SignInScreen(
-    isLoading: Boolean, onLogIn: (User) -> Unit
+    isLoading: Boolean,
+    onNavigateToRegister: () -> Unit,
+    onNavigateToMainWithoutLogIn: () -> Unit,
+    onLogIn: (User) -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -77,13 +80,15 @@ fun SignInScreen(
             )
         }
 
-        LogInContent(onLogIn)
+        LogInContent(onLogIn, onNavigateToRegister, onNavigateToMainWithoutLogIn)
     }
 }
 
 @Composable
 private fun LogInContent(
-    onLogIn: (User) -> Unit
+    onLogIn: (User) -> Unit,
+    onNavigateToRegister: () -> Unit,
+    onNavigateToMainWithoutLogIn: () -> Unit,
 ) {
     val verticalScroll = rememberScrollState()
     var login by remember { mutableStateOf("") }
@@ -157,14 +162,20 @@ private fun LogInContent(
                     Text("Войти")
                 }
 
-                ClickableContainer()
+                ClickableContainer(
+                    onNavigateToRegister = onNavigateToRegister,
+                    onNavigateToMainWithoutLogIn = onNavigateToMainWithoutLogIn
+                )
             }
         }
     }
 }
 
 @Composable
-private fun ClickableContainer() {
+private fun ClickableContainer(
+    onNavigateToRegister: () -> Unit,
+    onNavigateToMainWithoutLogIn: () -> Unit,
+) {
     Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         ClickableText(text = buildAnnotatedString {
             append("У вас нет аккаунта? ")
@@ -176,7 +187,7 @@ private fun ClickableContainer() {
             ) {
                 append("Регистрация")
             }
-        }, onClick = {})
+        }, onClick = { onNavigateToRegister() })
         Spacer(modifier = Modifier.height(8.dp))
         ClickableText(text = buildAnnotatedString {
             withStyle(
@@ -187,7 +198,7 @@ private fun ClickableContainer() {
             ) {
                 append("Войти как гость")
             }
-        }, onClick = {})
+        }, onClick = { onNavigateToMainWithoutLogIn() })
     }
 }
 
@@ -301,5 +312,5 @@ private fun ScreenName() {
 @Preview
 @Composable
 private fun SignInPreview() {
-    SignInScreen(true) {}
+    SignInScreen(true, onNavigateToMainWithoutLogIn = {}, onNavigateToRegister = {}) {}
 }

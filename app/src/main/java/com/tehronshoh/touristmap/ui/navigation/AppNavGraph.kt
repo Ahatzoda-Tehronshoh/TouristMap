@@ -17,7 +17,6 @@ import androidx.navigation.compose.composable
 import com.tehronshoh.touristmap.extensions.sharedViewModel
 import com.tehronshoh.touristmap.model.NetworkResult
 import com.tehronshoh.touristmap.model.User
-import com.tehronshoh.touristmap.ui.screens.AuthorizationScreen
 import com.tehronshoh.touristmap.ui.screens.HomeScreen
 import com.tehronshoh.touristmap.ui.screens.SignInScreen
 import com.tehronshoh.touristmap.ui.screens.SignUpScreen
@@ -42,26 +41,12 @@ fun AppNavGraph(
     ) {
         composable(route = Screen.SplashScreen.route) {
             SplashScreen {
-                navController.navigate(Screen.Authorization.route) {
+                navController.navigate(Screen.LogIn.route) {
                     popUpTo(route = Screen.SplashScreen.route) {
                         inclusive = true
                     }
                 }
             }
-        }
-
-        composable(route = Screen.Authorization.route) {
-            AuthorizationScreen(
-                onNavigateToLogIn = {
-                    navController.navigate(Screen.LogIn.route)
-                },
-                onNavigateToMain = {
-                    navController.navigate(Screen.Home.route)
-                },
-                onNavigateToRegistration = {
-                    navController.navigate(Screen.Registration.route)
-                }
-            )
         }
 
         composable(route = Screen.LogIn.route) {
@@ -70,7 +55,15 @@ fun AppNavGraph(
 
             var isLoading by remember { mutableStateOf(false) }
 
-            SignInScreen(isLoading = isLoading) { user ->
+            SignInScreen(
+                isLoading = isLoading,
+                onNavigateToRegister = {
+                    navController.navigate(Screen.Registration.route)
+                },
+                onNavigateToMainWithoutLogIn = {
+                    navController.navigate(Screen.Home.route)
+                }
+            ) { user ->
                 coroutineScope.launch(Dispatchers.Main) {
                     signInViewModel.signIn(user).collect { result ->
                         when (result) {
@@ -109,7 +102,18 @@ fun AppNavGraph(
 
             var isLoading by remember { mutableStateOf(false) }
 
-            SignUpScreen(fragmentManager = fragmentManager, isLoading = isLoading) { user ->
+            SignUpScreen(
+                fragmentManager = fragmentManager,
+                isLoading = isLoading,
+                onNavigateToLogIn = {
+                    navController.navigateUp()
+                },
+                onNavigateToMainWithoutLogIn = {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(route = Screen.LogIn.route)
+                    }
+                }
+            ) { user ->
                 coroutineScope.launch(Dispatchers.Main) {
                     viewModel.registration(user).collect { result ->
                         when (result) {
