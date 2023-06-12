@@ -3,12 +3,9 @@ package com.tehronshoh.touristmap.ui.screens.home
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -59,25 +56,25 @@ fun MainScreen() {
                 currentOpenPage = it
             }
         },
-        modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight(0.5f),
+        modifier = Modifier.fillMaxSize(),
         contentColor = Color.Yellow
     ) { padding ->
         val scaffoldPadding = padding
 
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(color = colorResource(id = R.color.white)),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = stringResource(id = currentOpenPage.labelId),
-                fontSize = 32.sp,
-                style = TextStyle(color = colorResource(id = R.color.primary))
-            )
+            when(currentOpenPage.route) {
+                Screen.Search.route -> {
+                    SearchScreen()
+                }
+                Screen.Map.route -> {
+                    MapScreen()
+                }
+            }
         }
     }
 }
@@ -88,7 +85,7 @@ fun TopPagerBar(currentOpenPage: TopPagerBarItem, onPageChange: (TopPagerBarItem
         backgroundColor = Color.Transparent,
         contentColor = Color.Transparent,
         elevation = 0.dp,
-        modifier = Modifier.padding(start = 30.dp, end = 30.dp, top = 20.dp)
+        modifier = Modifier.padding(start = 30.dp, end = 30.dp, top = 8.dp)
     ) {
         val currentRoute = currentOpenPage.route
 

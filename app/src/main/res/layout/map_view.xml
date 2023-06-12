@@ -6,7 +6,6 @@
 
     <com.yandex.mapkit.mapview.MapView
         android:id="@+id/yandex_map_view"
-        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
                <Button
@@ -15,7 +14,7 @@
                    android:layout_height="48dp"
                    android:text="@string/traffic"
                    android:layout_marginEnd="12dp"
-                   android:layout_marginTop="12dp"
+                   android:layout_marginTop="50dp"
                    android:layout_alignParentEnd="true"
                    android:layout_alignParentTop="true"/>
 
@@ -35,7 +34,7 @@
                    android:layout_alignParentEnd="true"
                    android:layout_alignParentBottom="true"
                    android:layout_marginEnd="12dp"
-                   android:layout_marginBottom="24dp"
+                   android:layout_marginBottom="70dp"
                    android:text="@string/out_zoom" />
 
                <Button
@@ -50,6 +49,7 @@
 
     <androidx.compose.ui.platform.ComposeView
         android:id="@+id/compose_view"
+        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"/>

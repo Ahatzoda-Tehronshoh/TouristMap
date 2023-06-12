@@ -43,7 +43,7 @@ fun BottomNavigationBar(navController: NavHostController) {
         backgroundColor = Color.Transparent,
         contentColor = Color.Transparent,
         elevation = 0.dp,
-        modifier = Modifier.padding(start = 30.dp, end = 30.dp, bottom = 20.dp)
+        modifier = Modifier.padding(start = 30.dp, end = 30.dp, bottom = 8.dp)
     ) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
 

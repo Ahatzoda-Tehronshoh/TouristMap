@@ -7,65 +7,26 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import android.util.Log
-import android.view.View.GONE
-import android.view.View.VISIBLE
 import android.widget.Toast
+import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.rememberModalBottomSheetState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
-import com.tehronshoh.touristmap.databinding.ActivityMapsBinding
-import com.tehronshoh.touristmap.extensions.hideBottomSheetPlace
-import com.tehronshoh.touristmap.extensions.showBottomSheetPlace
-import com.tehronshoh.touristmap.utils.MapKitUtil
-import com.tehronshoh.touristmap.model.Place
-import com.tehronshoh.touristmap.remote.RetrofitClient
-import com.tehronshoh.touristmap.ui.components.PlaceBottomSheet
 import com.tehronshoh.touristmap.ui.navigation.AppNavGraph
 import com.yandex.mapkit.geometry.Point
-import com.yandex.mapkit.map.MapObjectTapListener
-import kotlinx.coroutines.launch
 
 class MapsActivity : AppCompatActivity(), OnRequestPermissionsResultCallback {
 
-    private val mapKitUtil: MapKitUtil by lazy {
-        MapKitUtil(binding.yandexMapView)
-    }
-
-    private var showBottomSheet = mutableStateOf(false)
     private var currentPosition: Point? = null
-    private var choosingPlace: Place? = null
-
-    private val listOfPlaces = listOf(
-        Place("Парк Рудаки", 38.576290022103, 68.7847677535899, ""),
-        Place("Дворец Нации", 38.57625532932752, 68.77876043971129, ""),
-        Place("Парк национального флага", 38.58121398293717, 68.78074208988657, ""),
-        Place("Национальный музей Таджикистана", 38.582388153207894, 68.77991596953152, ""),
-        Place("Филиал МГУ им. М.В. Ломоносова", 38.57935204500182, 68.79011909252935, "")
-    )
-
-    private lateinit var binding: ActivityMapsBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         applyLocationManager()
 
-        binding = ActivityMapsBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        binding.composeView.setContent {
+        setContent {
             AppTheme {
                 val navController = rememberNavController()
 
@@ -73,53 +34,8 @@ class MapsActivity : AppCompatActivity(), OnRequestPermissionsResultCallback {
                     fragmentManager = supportFragmentManager,
                     navController = navController
                 )
-                //PlaceModalBottomSheetInitialize()
             }
         }
-
-        val point = Point(
-            currentPosition?.latitude ?: 38.57935204500182,
-            currentPosition?.longitude ?: 68.79011909252935
-        )
-
-        /*
-        mapKitUtil.apply {
-            initialize(
-                context = this@MapsActivity,
-                cameraPosition = CameraPosition(point, 8f, 0f, 0f),
-                animation = Animation(Animation.Type.SMOOTH, 0.3f),
-                zoomInButton = binding.zoomInButton,
-                zoomOutButton = binding.zoomOutButton
-            )
-
-            addPlaces(
-                listOfPlaces.map { place ->
-                    Point(
-                        place.latitude,
-                        place.longitude
-                    )
-                },
-                ImageProvider.fromBitmap(
-                    getBitmapFromVectorDrawable(R.drawable.baseline_location_on_24)
-                ),
-                listener
-            )
-
-            if (enableMyLocation())
-                changeUserLocationVisibility()
-        }
-
-        setListeners()
-        */
-    }
-
-    private val listener = MapObjectTapListener { _, point ->
-        Log.d("TAG_MAP", "onCreate: Tapped!")
-        choosingPlace =
-            Place("", point.latitude, point.longitude, "")
-        showBottomSheet.value = true
-
-        true
     }
 
     private fun applyLocationManager() {
@@ -146,80 +62,6 @@ class MapsActivity : AppCompatActivity(), OnRequestPermissionsResultCallback {
             locationManager.requestLocationUpdates(
                 LocationManager.NETWORK_PROVIDER, 0L, 0f, locationListener
             )
-        }
-    }
-
-    private fun setListeners() = binding.apply {
-        trafficVisibility.setOnClickListener {
-            mapKitUtil.changeTrafficVisibility()
-        }
-
-        locationVisibility.setOnClickListener {
-            if (enableMyLocation())
-                mapKitUtil.changeUserLocationVisibility()
-        }
-    }
-
-    @OptIn(ExperimentalMaterialApi::class)
-    @Composable
-    private fun PlaceModalBottomSheetInitialize() {
-        val showBottomSheetRemember by remember {
-            showBottomSheet
-        }
-        val sheetState = rememberModalBottomSheetState(
-            initialValue = ModalBottomSheetValue.Hidden,
-            confirmValueChange = { it != ModalBottomSheetValue.Expanded },
-            //skipHalfExpanded = true
-        )
-
-        val coroutineScope = rememberCoroutineScope()
-
-        if (showBottomSheetRemember) {
-            binding.composeView.visibility = VISIBLE
-            Log.d("TAG_TEST", "onCreate: $choosingPlace")
-            choosingPlace?.let {
-                PlaceBottomSheet(place = it,
-                    sheetState = sheetState,
-                    coroutineScope = coroutineScope,
-                    buildRoute = {
-                        if (currentPosition != null) {
-                            showBottomSheet.value = false
-                            mapKitUtil.submitRequestForDrawingRoute(
-                                routeStartLocation = Point(
-                                    currentPosition!!.latitude,
-                                    currentPosition!!.longitude
-                                ),
-                                routeEndLocation = Point(
-                                    it.latitude,
-                                    it.longitude
-                                )
-                            )
-                        } else {
-                            Log.d(
-                                "TAG_MAP",
-                                "PlaceModalBottomSheetInitialize: currentPosition = null"
-                            )
-                            Toast.makeText(
-                                this@MapsActivity,
-                                "Ваше местоположения неизвестно, повторите еще раз!",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    }) {
-                    showBottomSheet.value = false
-                }
-            }
-
-            sheetState.showBottomSheetPlace(coroutineScope)
-        } else {
-            sheetState.hideBottomSheetPlace(coroutineScope)
-            binding.composeView.visibility = GONE
-        }
-
-        LaunchedEffect(key1 = sheetState.currentValue) {
-            if (showBottomSheet.value && (sheetState.currentValue == ModalBottomSheetValue.Hidden)) {
-                showBottomSheet.value = false
-            }
         }
     }
 
@@ -270,20 +112,10 @@ class MapsActivity : AppCompatActivity(), OnRequestPermissionsResultCallback {
                         Manifest.permission.ACCESS_FINE_LOCATION
                     )
                 ) {
-                    //applyLocationManager()
+                    applyLocationManager()
                 }
             }
         }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        mapKitUtil.start()
-    }
-
-    override fun onStop() {
-        mapKitUtil.stop()
-        super.onStop()
     }
 
     companion object {

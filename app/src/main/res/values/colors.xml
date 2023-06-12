@@ -13,4 +13,5 @@
     <color name="primary">#A74A9A</color>
     <color name="primary_100">#F6F4F8</color>
     <color name="inactive_color">#626263</color>
+    <color name="background_color">#1E1E1E</color>
 </resources>
