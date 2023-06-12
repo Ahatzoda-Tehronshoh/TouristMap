@@ -1,6 +1,5 @@
 package com.tehronshoh.touristmap.ui.screens
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,9 +35,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
@@ -57,8 +54,8 @@ import androidx.compose.ui.zIndex
 import com.tehronshoh.touristmap.R
 import com.tehronshoh.touristmap.extensions.isValidEmail
 import com.tehronshoh.touristmap.model.User
-import com.tehronshoh.touristmap.ui.components.AppIcon
 import com.tehronshoh.touristmap.ui.components.PasswordTextField
+import com.tehronshoh.touristmap.ui.components.TopImage
 
 @Composable
 fun SignInScreen(
@@ -298,19 +295,6 @@ private fun ScreenName() {
                 .height(2.dp)
                 .align(Alignment.Start)
         )
-    }
-}
-
-@Composable
-private fun TopImage(modifier: Modifier = Modifier) {
-    Box(modifier = modifier, contentAlignment = Alignment.Center) {
-        Image(
-            painter = painterResource(id = R.drawable.auth_image),
-            contentDescription = "Logo",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxWidth()
-        )
-        AppIcon(modifier = Modifier.padding(bottom = 40.dp))
     }
 }
 

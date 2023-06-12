@@ -1,5 +1,6 @@
 package com.tehronshoh.touristmap.ui.components
 
+import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
@@ -34,6 +35,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -41,7 +46,9 @@ import androidx.compose.ui.unit.sp
 import androidx.fragment.app.FragmentManager
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.tehronshoh.touristmap.R
 import com.tehronshoh.touristmap.model.Country
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -88,6 +95,13 @@ fun CountryBottomSheetDialog(
     }
 
     class ComposeBottomSheetDialogFragment : BottomSheetDialogFragment() {
+
+        override fun getTheme(): Int = R.style.BottomSheetDialogTheme
+
+        override fun onCreateDialog(savedInstanceState: Bundle?): Dialog =
+            BottomSheetDialog(requireContext(), theme)
+
+
         override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
@@ -99,16 +113,16 @@ fun CountryBottomSheetDialog(
                     Box(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier
-                            .fillMaxSize()
                             .clip(shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
+                            .fillMaxSize()
                     ) {
                         CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                     }
                 } else {
                     Column(
                         modifier = Modifier
-                            .fillMaxSize()
                             .clip(shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
+                            .fillMaxSize()
                     ) {
                         TextField(
                             value = searchQuery,
@@ -182,6 +196,8 @@ fun CountryListItem(country: Country, onCountrySelected: (Country) -> Unit) {
         Text(
             text = country.officialName,
             fontSize = 18.sp,
+            fontFamily = FontFamily(Font(resId = R.font.montserrat_600)),
+            style = TextStyle(color = Color.Black, fontWeight = FontWeight.W500),
             modifier = Modifier
                 .fillMaxWidth(0.8f)
                 .padding(vertical = 8.dp)
