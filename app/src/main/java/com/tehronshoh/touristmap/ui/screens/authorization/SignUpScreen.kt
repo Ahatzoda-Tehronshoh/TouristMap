@@ -1,4 +1,4 @@
-package com.tehronshoh.touristmap.ui.screens
+package com.tehronshoh.touristmap.ui.screens.authorization
 
 
 import androidx.compose.foundation.Image

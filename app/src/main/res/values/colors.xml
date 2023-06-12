@@ -12,4 +12,5 @@
 
     <color name="primary">#A74A9A</color>
     <color name="primary_100">#F6F4F8</color>
+    <color name="inactive_color">#626263</color>
 </resources>
