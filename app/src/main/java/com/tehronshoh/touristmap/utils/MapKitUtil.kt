@@ -44,9 +44,11 @@ class MapKitUtil(
     private val mapObjects: MapObjectCollection by lazy {
         mapView.map.mapObjects.addCollection()
     }
+
     private val drivingRouter: DrivingRouter by lazy {
         DirectionsFactory.getInstance().createDrivingRouter()
     }
+
     private var drivingSession: DrivingSession? = null
 
     private val currentZoom

@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.sp
 import com.tehronshoh.touristmap.R
 import com.tehronshoh.touristmap.model.Filter
 import com.tehronshoh.touristmap.model.TopPagerBarItem
-import com.tehronshoh.touristmap.ui.LocalUserCurrentPosition
+import com.tehronshoh.touristmap.ui.tool.LocalUserCurrentPosition
 import com.tehronshoh.touristmap.ui.navigation.Screen
 import com.yandex.mapkit.geometry.Point
 
@@ -101,7 +101,7 @@ fun MainScreen() {
                     )
                 }
                 Screen.Map.route -> {
-                    MapScreen(point, mapKitConfigure) {
+                    MapScreen(mapKitConfigure) {
                         mapKitConfigure = it
                     }
                 }

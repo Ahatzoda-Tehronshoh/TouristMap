@@ -64,8 +64,8 @@ import com.tehronshoh.touristmap.extensions.distance
 import com.tehronshoh.touristmap.model.Filter
 import com.tehronshoh.touristmap.model.NetworkResult
 import com.tehronshoh.touristmap.model.Place
-import com.tehronshoh.touristmap.ui.LocalFilteredPlaces
-import com.tehronshoh.touristmap.ui.LocalUserCurrentPosition
+import com.tehronshoh.touristmap.ui.tool.LocalFilteredPlaces
+import com.tehronshoh.touristmap.ui.tool.LocalUserCurrentPosition
 import com.tehronshoh.touristmap.viewmodel.MainViewModel
 import com.yandex.mapkit.geometry.Point
 

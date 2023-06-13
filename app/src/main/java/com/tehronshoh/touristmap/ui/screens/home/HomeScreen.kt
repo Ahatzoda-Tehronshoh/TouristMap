@@ -3,7 +3,6 @@ package com.tehronshoh.touristmap.ui.screens.home
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
@@ -15,10 +14,10 @@ import com.tehronshoh.touristmap.extensions.sharedViewModel
 import com.tehronshoh.touristmap.model.BottomNavItem
 import com.tehronshoh.touristmap.model.Filter
 import com.tehronshoh.touristmap.model.NetworkResult
-import com.tehronshoh.touristmap.model.Place
-import com.tehronshoh.touristmap.ui.LocalFilteredPlaces
+import com.tehronshoh.touristmap.ui.tool.LocalFilteredPlaces
 import com.tehronshoh.touristmap.ui.components.BottomNavigationBar
 import com.tehronshoh.touristmap.ui.navigation.Screen
+import com.tehronshoh.touristmap.ui.tool.LocalStaticPlaces
 import com.tehronshoh.touristmap.viewmodel.MainViewModel
 
 
@@ -61,7 +60,10 @@ fun HomeScreen() {
 
                 val listOfPlace = viewModel.listOfPlaceLiveData.observeAsState(initial = NetworkResult.Loading())
 
-                CompositionLocalProvider(LocalFilteredPlaces provides listOfPlace.value) {
+                CompositionLocalProvider(
+                    LocalStaticPlaces provides viewModel.getListOfPlace(),
+                    LocalFilteredPlaces provides listOfPlace.value
+                ) {
                     MainScreen()
                 }
             }

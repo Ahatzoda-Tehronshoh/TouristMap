@@ -18,6 +18,7 @@ import androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
 import com.tehronshoh.touristmap.ui.navigation.AppNavGraph
+import com.tehronshoh.touristmap.ui.tool.LocalUserCurrentPosition
 import com.yandex.mapkit.geometry.Point
 
 class MapsActivity : AppCompatActivity(), OnRequestPermissionsResultCallback {

@@ -28,16 +28,21 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.viewinterop.AndroidViewBinding
 import com.tehronshoh.touristmap.R
 import com.tehronshoh.touristmap.databinding.MapViewBinding
+import com.tehronshoh.touristmap.extensions.getBitmapFromVectorDrawable
 import com.tehronshoh.touristmap.extensions.hideBottomSheetPlace
 import com.tehronshoh.touristmap.extensions.showBottomSheetPlace
 import com.tehronshoh.touristmap.model.Place
 import com.tehronshoh.touristmap.ui.components.PlaceBottomSheet
+import com.tehronshoh.touristmap.ui.tool.LocalStaticPlaces
+import com.tehronshoh.touristmap.ui.tool.LocalUserCurrentPosition
 import com.tehronshoh.touristmap.utils.MapKitUtil
 import com.yandex.mapkit.Animation
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.CameraPosition
 import com.yandex.mapkit.map.MapObjectTapListener
+import com.yandex.runtime.image.ImageProvider
 import kotlinx.parcelize.Parcelize
+import kotlin.math.abs
 
 @Parcelize
 data class MapKitConfigure(
@@ -49,7 +54,9 @@ data class MapKitConfigure(
 ) : Parcelable
 
 @Composable
-fun MapScreen(currentPosition: Point, mapKitConfigure: MapKitConfigure, onConfigureChange: (MapKitConfigure) -> Unit) {
+fun MapScreen(mapKitConfigure: MapKitConfigure, onConfigureChange: (MapKitConfigure) -> Unit) {
+    val listOfPlace = LocalStaticPlaces.current
+    val currentPosition = LocalUserCurrentPosition.current
 
     var showBottomSheet by remember {
         mutableStateOf(false)
@@ -64,13 +71,16 @@ fun MapScreen(currentPosition: Point, mapKitConfigure: MapKitConfigure, onConfig
     }
 
     val context = LocalContext.current
-    val isUserLocationEnable = true
 
     val listener = MapObjectTapListener { _, p ->
         Log.d("TAG_MAP", "onCreate: Tapped!")
-/*
-        choosingPlace = Place("", p.latitude, p.longitude, "")*/
-        showBottomSheet = true
+
+        listOfPlace.firstOrNull { (abs(it.latitude - p.latitude) < 0.0001 && abs(it.longitude - p.longitude) < 0.0001) }?.let {
+            Log.d("TAG_MAP", "onCreate: ${p.latitude} - ${p.longitude}!")
+            Log.d("TAG_MAP", "onCreate: ${it.latitude} - ${it.longitude}!")
+            choosingPlace = it
+            showBottomSheet = true
+        }
 
         true
     }
@@ -111,9 +121,9 @@ fun MapScreen(currentPosition: Point, mapKitConfigure: MapKitConfigure, onConfig
                             zoomInButton = zoomInButton,
                             zoomOutButton = zoomOutButton
                         )
-/*
+
                         addPlaces(
-                            listOfPlaces.map { place ->
+                            listOfPlace.map { place ->
                                 Point(
                                     place.latitude,
                                     place.longitude
@@ -124,8 +134,8 @@ fun MapScreen(currentPosition: Point, mapKitConfigure: MapKitConfigure, onConfig
                             ),
                             listener
                         )
-*/
-                        if (isUserLocationEnable)
+
+                        if (currentPosition != null)
                             changeUserLocationVisibility()
                     }
 
@@ -134,7 +144,7 @@ fun MapScreen(currentPosition: Point, mapKitConfigure: MapKitConfigure, onConfig
                     }
 
                     locationVisibility.setOnClickListener {
-                        if (isUserLocationEnable)
+                        if (currentPosition != null)
                             mapKitUtil?.changeUserLocationVisibility()
                     }
 
