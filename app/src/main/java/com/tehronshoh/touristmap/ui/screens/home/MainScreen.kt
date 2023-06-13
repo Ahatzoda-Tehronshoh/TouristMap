@@ -45,11 +45,14 @@ object MainScreen {
 
 @Composable
 fun MainScreen() {
+    var currentOpenPage by rememberSaveable {
+        mutableStateOf(MainScreen.pages[0])
+    }
+
     val point = Point(
         /*currentPosition?.latitude ?: */38.57935204500182,
         /*currentPosition?.longitude ?: */68.79011909252935
     )
-
     var mapKitConfigure by rememberSaveable {
         mutableStateOf(
             MapKitConfigure(
@@ -60,9 +63,7 @@ fun MainScreen() {
         )
     }
 
-    var currentOpenPage by rememberSaveable {
-        mutableStateOf(MainScreen.pages[0])
-    }
+    var searchingText by rememberSaveable { mutableStateOf("") }
 
     Scaffold(
         topBar = {
@@ -75,7 +76,6 @@ fun MainScreen() {
         modifier = Modifier.fillMaxSize(),
         contentColor = Color.Yellow
     ) { padding ->
-        val scaffoldPadding = padding
 
         Box(
             modifier = Modifier
@@ -85,7 +85,12 @@ fun MainScreen() {
         ) {
             when(currentOpenPage.route) {
                 Screen.Search.route -> {
-                    SearchScreen()
+                    SearchScreen(
+                        searchingText = searchingText,
+                        modifier = Modifier.padding(padding),
+                        onSearchingTextChange = { searchingText = it },
+                        onSearchingCancel = { searchingText = "" }
+                    )
                 }
                 Screen.Map.route -> {
                     MapScreen(point, mapKitConfigure) {
