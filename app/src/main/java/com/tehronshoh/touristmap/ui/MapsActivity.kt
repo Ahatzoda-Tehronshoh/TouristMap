@@ -10,6 +10,9 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback
 import androidx.core.content.ContextCompat
@@ -19,7 +22,7 @@ import com.yandex.mapkit.geometry.Point
 
 class MapsActivity : AppCompatActivity(), OnRequestPermissionsResultCallback {
 
-    private var currentPosition: Point? = null
+    private var currentPosition = mutableStateOf<Point?>(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,10 +33,16 @@ class MapsActivity : AppCompatActivity(), OnRequestPermissionsResultCallback {
             AppTheme {
                 val navController = rememberNavController()
 
-                AppNavGraph(
-                    fragmentManager = supportFragmentManager,
-                    navController = navController
-                )
+                val currentPositionRemember = remember {
+                    currentPosition
+                }
+
+                CompositionLocalProvider(LocalUserCurrentPosition provides currentPositionRemember.value) {
+                    AppNavGraph(
+                        fragmentManager = supportFragmentManager,
+                        navController = navController
+                    )
+                }
             }
         }
     }
@@ -93,7 +102,11 @@ class MapsActivity : AppCompatActivity(), OnRequestPermissionsResultCallback {
     }
 
     private val locationListener: LocationListener = LocationListener { location ->
-        currentPosition = Point(location.latitude, location.longitude)
+        currentPosition.value = Point(location.latitude, location.longitude)
+        Log.d(
+            "TAG_APP",
+            ": ${currentPosition.value?.latitude} - ${currentPosition.value?.longitude}"
+        )
     }
 
     override fun onRequestPermissionsResult(

@@ -28,7 +28,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.viewinterop.AndroidViewBinding
 import com.tehronshoh.touristmap.R
 import com.tehronshoh.touristmap.databinding.MapViewBinding
-import com.tehronshoh.touristmap.extensions.getBitmapFromVectorDrawable
 import com.tehronshoh.touristmap.extensions.hideBottomSheetPlace
 import com.tehronshoh.touristmap.extensions.showBottomSheetPlace
 import com.tehronshoh.touristmap.model.Place
@@ -38,16 +37,7 @@ import com.yandex.mapkit.Animation
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.CameraPosition
 import com.yandex.mapkit.map.MapObjectTapListener
-import com.yandex.runtime.image.ImageProvider
 import kotlinx.parcelize.Parcelize
-
-private val listOfPlaces = listOf(
-    Place("Парк Рудаки", 38.576290022103, 68.7847677535899, ""),
-    Place("Дворец Нации", 38.57625532932752, 68.77876043971129, ""),
-    Place("Парк национального флага", 38.58121398293717, 68.78074208988657, ""),
-    Place("Национальный музей Таджикистана", 38.582388153207894, 68.77991596953152, ""),
-    Place("Филиал МГУ им. М.В. Ломоносова", 38.57935204500182, 68.79011909252935, "")
-)
 
 @Parcelize
 data class MapKitConfigure(
@@ -78,7 +68,8 @@ fun MapScreen(currentPosition: Point, mapKitConfigure: MapKitConfigure, onConfig
 
     val listener = MapObjectTapListener { _, p ->
         Log.d("TAG_MAP", "onCreate: Tapped!")
-        choosingPlace = Place("", p.latitude, p.longitude, "")
+/*
+        choosingPlace = Place("", p.latitude, p.longitude, "")*/
         showBottomSheet = true
 
         true
@@ -120,7 +111,7 @@ fun MapScreen(currentPosition: Point, mapKitConfigure: MapKitConfigure, onConfig
                             zoomInButton = zoomInButton,
                             zoomOutButton = zoomOutButton
                         )
-
+/*
                         addPlaces(
                             listOfPlaces.map { place ->
                                 Point(
@@ -133,7 +124,7 @@ fun MapScreen(currentPosition: Point, mapKitConfigure: MapKitConfigure, onConfig
                             ),
                             listener
                         )
-
+*/
                         if (isUserLocationEnable)
                             changeUserLocationVisibility()
                     }
@@ -203,7 +194,6 @@ private fun PlaceModalBottomSheetInitialize(
         choosingPlace?.let {
             PlaceBottomSheet(place = it,
                 sheetState = sheetState,
-                coroutineScope = coroutineScope,
                 buildRoute = {
                     if (currentPosition != null) {
                         onBottomStateChange(false)

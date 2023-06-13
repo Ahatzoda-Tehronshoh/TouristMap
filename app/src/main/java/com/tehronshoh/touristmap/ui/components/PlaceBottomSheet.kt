@@ -12,21 +12,17 @@ import androidx.compose.material.Text
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.zIndex
 import com.tehronshoh.touristmap.model.Place
-import kotlinx.coroutines.CoroutineScope
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun PlaceBottomSheet(
     place: Place,
     sheetState: ModalBottomSheetState,
-    coroutineScope: CoroutineScope,
-    buildRoute: () -> (Unit),
-    onClose: () -> (Unit)
+    buildRoute: () -> Unit,
+    onClose: () -> Unit
 ){
     Log.d("TAG_TEST", "PlaceBottomSheet: Opened!")
     ModalBottomSheetLayout(
@@ -51,10 +47,10 @@ fun PlaceBottomSheet(
                 )
             }
     }) {}
-/*
+
     BackHandler(sheetState.isVisible) {
         onClose()
-    }*/
+    }
 }
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -62,9 +58,8 @@ fun PlaceBottomSheet(
 @Composable
 fun PlaceBottomSheetPreview() {
     PlaceBottomSheet(
-        Place("Парк Рудаки", 38.576290022103, 68.7847677535899, ""),
+        Place(0, "Парк Рудаки", 38.576290022103, 68.7847677535899, "", listOf()),
         rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Expanded),
-        rememberCoroutineScope(),
         {}
     ) {}
 }

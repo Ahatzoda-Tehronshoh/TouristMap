@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.sp
 import com.tehronshoh.touristmap.R
 import com.tehronshoh.touristmap.model.Filter
 import com.tehronshoh.touristmap.model.TopPagerBarItem
+import com.tehronshoh.touristmap.ui.LocalUserCurrentPosition
 import com.tehronshoh.touristmap.ui.navigation.Screen
 import com.yandex.mapkit.geometry.Point
 
@@ -50,10 +51,13 @@ fun MainScreen() {
         mutableStateOf(MainScreen.pages[0])
     }
 
+    val currentPosition = LocalUserCurrentPosition.current
+
     val point = Point(
-        /*currentPosition?.latitude ?: */38.57935204500182,
-        /*currentPosition?.longitude ?: */68.79011909252935
+        currentPosition?.latitude ?: 38.57935204500182,
+        currentPosition?.longitude ?: 68.79011909252935
     )
+
     var mapKitConfigure by rememberSaveable {
         mutableStateOf(
             MapKitConfigure(

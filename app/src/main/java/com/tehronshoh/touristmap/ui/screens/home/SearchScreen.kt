@@ -15,8 +15,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.RadioButton
@@ -38,6 +42,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalDensity
@@ -52,8 +57,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
 import com.tehronshoh.touristmap.R
+import com.tehronshoh.touristmap.extensions.distance
 import com.tehronshoh.touristmap.model.Filter
+import com.tehronshoh.touristmap.model.NetworkResult
+import com.tehronshoh.touristmap.model.Place
+import com.tehronshoh.touristmap.ui.LocalFilteredPlaces
+import com.tehronshoh.touristmap.ui.LocalUserCurrentPosition
+import com.tehronshoh.touristmap.viewmodel.MainViewModel
+import com.yandex.mapkit.geometry.Point
 
 @Composable
 fun SearchScreen(
@@ -75,12 +89,16 @@ fun SearchScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(color = colorResource(id = R.color.white))
-            .padding(horizontal = 30.dp),
+            .background(color = colorResource(id = R.color.white)),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 30.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             if (searchingText.isNotEmpty()) Image(imageVector = ImageVector.vectorResource(id = R.drawable.back_button),
                 contentDescription = "filter",
                 modifier = Modifier
@@ -152,19 +170,20 @@ fun SearchScreen(
                 modifier = Modifier
                     .selectableGroup()
                     .shadow(elevation = 0.dp)
-                    .clip(RoundedCornerShape(10.dp))
                     .border(
                         width = 1.dp,
                         color = colorResource(id = R.color.black_10_alpha),
-                        shape = RoundedCornerShape(10.dp)
+                        shape = RoundedCornerShape(0.dp)
                     )
-                    .background(color = Color.White, shape = RoundedCornerShape(10.dp))
+                    .background(color = Color.White, shape = RoundedCornerShape(0.dp))
                     .height(IntrinsicSize.Min)) {
                 Filter.values().forEach {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Start,
-                        modifier = Modifier.shadow(elevation = 0.dp)
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .shadow(elevation = 0.dp)
                     ) {
                         val selected = (choosingFilter == it)
 
@@ -180,7 +199,12 @@ fun SearchScreen(
 
                         RadioButton(
                             selected = selected,
-                            onClick = { if (!selected) onFilterChange(it) },
+                            onClick = {
+                                if (!selected) {
+                                    expanded = false
+                                    onFilterChange(it)
+                                }
+                            },
                             colors = RadioButtonDefaults.colors(selectedColor = radioButtonColor),
                             modifier = radioButtonModifier
                         )
@@ -195,6 +219,7 @@ fun SearchScreen(
                             .alpha(0.5f)
                             .padding(end = 8.dp)
                             .clickable {
+                                expanded = false
                                 onFilterChange(it)
                             }
 
@@ -211,16 +236,139 @@ fun SearchScreen(
             }
         }
 
-        Box(modifier = Modifier.weight(1f))
+        Box(
+            modifier = Modifier
+                .background(color = Color.White)
+                .weight(1f),
+            contentAlignment = Alignment.Center
+        ) {
+            when (val result = LocalFilteredPlaces.current) {
+                is NetworkResult.Loading -> {
+                    CircularProgressIndicator(
+                        color = colorResource(id = R.color.primary),
+                        modifier = Modifier.padding(bottom = 40.dp)
+                    )
+                }
+
+                is NetworkResult.Success -> {
+                    PlaceList(
+                        places = result.data!!,
+                        onPlaceSelected = { }
+                    )
+                }
+
+                is NetworkResult.Error -> {
+                    Text(
+                        text = result.message!!,
+                        fontSize = 32.sp,
+                        style = TextStyle(color = colorResource(id = R.color.primary))
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PlaceList(
+    places: List<Place>,
+    onPlaceSelected: (Place) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    LazyColumn(
+        modifier = modifier
+            .fillMaxSize()
+            .background(color = Color.White)
+            .padding(top = 12.dp)
+    ) {
+        items(places) { place ->
+            PlaceListItem(place = place, onPlaceSelected = onPlaceSelected)
+
+            val height = if (places.last() == place) 70.dp else 12.dp
+            Spacer(modifier = Modifier.height(height))
+        }
+    }
+}
+
+@OptIn(ExperimentalGlideComposeApi::class)
+@Composable
+fun PlaceListItem(place: Place, onPlaceSelected: (Place) -> Unit) {
+    val distance = LocalUserCurrentPosition.current?.let {
+        "Расстояние: " + it.distance(Point(place.latitude, place.longitude))
+    } ?: "Ваша локация не доступно!"
+
+    Row(
+        modifier = Modifier
+            .padding(horizontal = 30.dp)
+            .fillMaxWidth()
+            .shadow(elevation = 1.dp, shape = RoundedCornerShape(10.dp))
+            .clickable {
+                onPlaceSelected(place)
+            }
+            .background(color = Color.White)
+            .padding(12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
+    ) {
+        GlideImage(
+            model = place.images.firstOrNull() ?: R.drawable.auth_image,
+            contentDescription = place.name,
+            modifier = Modifier
+                .size(50.dp)
+                .clip(RoundedCornerShape(5.dp)),
+            contentScale = ContentScale.Crop
+        ) {
+            it.load(place.images.firstOrNull() ?: R.drawable.auth_image)
+        }
+        Column(
+            modifier = Modifier
+                .padding(horizontal = 12.dp)
+                .weight(1f),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.Start
+        ) {
+            Text(
+                text = place.name,
+                fontSize = 12.sp,
+                fontFamily = FontFamily(Font(resId = R.font.montserrat_600)),
+                style = TextStyle(
+                    color = colorResource(id = R.color.black),
+                    fontWeight = FontWeight.W500
+                )
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+                text = distance,
+                fontSize = 10.sp,
+                fontFamily = FontFamily(Font(resId = R.font.montserrat_600)),
+                style = TextStyle(
+                    color = colorResource(id = R.color.black),
+                    fontWeight = FontWeight.W400
+                ),
+                modifier = Modifier.alpha(0.5f)
+            )
+        }
+        Image(
+            imageVector = ImageVector.vectorResource(id = R.drawable.un_star),
+            contentDescription = "like",
+            modifier = Modifier.padding(end = 12.dp)
+        )
     }
 }
 
 @Preview
 @Composable
+private fun PlaceListPreview() {
+    PlaceList(places = MainViewModel().getListOfPlace(), onPlaceSelected = {})
+}
+
+
+@Preview
+@Composable
 private fun SearchScreenPreview() {
-    SearchScreen(searchingText = "",
+    /*SearchScreen(searchingText = "",
         onSearchingCancel = {},
         onSearchingTextChange = {},
         choosingFilter = Filter.DEFAULT,
-        onFilterChange = {})
+        onFilterChange = {})*/
 }
