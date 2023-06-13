@@ -32,6 +32,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tehronshoh.touristmap.R
+import com.tehronshoh.touristmap.model.Filter
 import com.tehronshoh.touristmap.model.TopPagerBarItem
 import com.tehronshoh.touristmap.ui.navigation.Screen
 import com.yandex.mapkit.geometry.Point
@@ -64,6 +65,7 @@ fun MainScreen() {
     }
 
     var searchingText by rememberSaveable { mutableStateOf("") }
+    var choosingFilter by rememberSaveable { mutableStateOf(Filter.DEFAULT) }
 
     Scaffold(
         topBar = {
@@ -89,7 +91,9 @@ fun MainScreen() {
                         searchingText = searchingText,
                         modifier = Modifier.padding(padding),
                         onSearchingTextChange = { searchingText = it },
-                        onSearchingCancel = { searchingText = "" }
+                        onSearchingCancel = { searchingText = "" },
+                        choosingFilter = choosingFilter,
+                        onFilterChange = { choosingFilter = it }
                     )
                 }
                 Screen.Map.route -> {

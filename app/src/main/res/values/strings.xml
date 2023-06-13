@@ -17,4 +17,8 @@
     <string name="search">Поиск</string>
     <string name="map">Карта</string>
     <string name="tajikguide">TajikGuide</string>
+
+    <string name="by_default">По умолчанию</string>
+    <string name="nearest">Ближайшие</string>
+    <string name="name">Название</string>
 </resources>
