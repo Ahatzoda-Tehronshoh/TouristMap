@@ -29,18 +29,6 @@ class MapKitUtil(
     private val mapView: MapView
 ) : DrivingSession.DrivingRouteListener {
 
-    companion object {
-        private var INSTANCE: MapKitUtil? = null
-
-        fun getInstance(mapView: MapView): MapKitUtil {
-            synchronized(this) {
-                return INSTANCE ?: MapKitUtil(mapView).also {
-                    INSTANCE = it
-                }
-            }
-        }
-    }
-
     private val mapKit: MapKit by lazy {
         MapKitFactory.getInstance()
     }

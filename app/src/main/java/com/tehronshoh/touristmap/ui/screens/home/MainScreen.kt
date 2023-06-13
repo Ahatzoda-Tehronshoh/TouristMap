@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.sp
 import com.tehronshoh.touristmap.R
 import com.tehronshoh.touristmap.model.TopPagerBarItem
 import com.tehronshoh.touristmap.ui.navigation.Screen
+import com.yandex.mapkit.geometry.Point
 
 object MainScreen {
     val pages = listOf(
@@ -44,6 +45,21 @@ object MainScreen {
 
 @Composable
 fun MainScreen() {
+    val point = Point(
+        /*currentPosition?.latitude ?: */38.57935204500182,
+        /*currentPosition?.longitude ?: */68.79011909252935
+    )
+
+    var mapKitConfigure by rememberSaveable {
+        mutableStateOf(
+            MapKitConfigure(
+                pointLatitude = point.latitude,
+                pointLongitude = point.longitude,
+                currentZoom = 8f
+            )
+        )
+    }
+
     var currentOpenPage by rememberSaveable {
         mutableStateOf(MainScreen.pages[0])
     }
@@ -72,7 +88,9 @@ fun MainScreen() {
                     SearchScreen()
                 }
                 Screen.Map.route -> {
-                    MapScreen()
+                    MapScreen(point, mapKitConfigure) {
+                        mapKitConfigure = it
+                    }
                 }
             }
         }

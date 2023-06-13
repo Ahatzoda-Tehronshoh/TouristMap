@@ -2,8 +2,6 @@ package com.tehronshoh.touristmap.ui.navigation
 
 import android.util.Log
 import android.widget.Toast
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -16,17 +14,13 @@ import androidx.fragment.app.FragmentManager
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import com.tehronshoh.touristmap.extensions.sharedViewModel
 import com.tehronshoh.touristmap.model.NetworkResult
 import com.tehronshoh.touristmap.model.User
-import com.tehronshoh.touristmap.ui.components.BottomNavigationBar
 import com.tehronshoh.touristmap.ui.screens.SplashScreen
 import com.tehronshoh.touristmap.ui.screens.authorization.SignInScreen
 import com.tehronshoh.touristmap.ui.screens.authorization.SignUpScreen
 import com.tehronshoh.touristmap.ui.screens.home.HomeScreen
-import com.tehronshoh.touristmap.ui.screens.home.MainScreen
-import com.tehronshoh.touristmap.ui.screens.home.ProfileScreen
 import com.tehronshoh.touristmap.viewmodel.SignInViewModel
 import com.tehronshoh.touristmap.viewmodel.SignUpViewModel
 import kotlinx.coroutines.Dispatchers
@@ -42,7 +36,7 @@ fun AppNavGraph(
 
     NavHost(
         navController = navController,
-        startDestination = Screen.SplashScreen.route,
+        startDestination = Screen.Home.route,
         modifier = modifier
     ) {
         composable(route = Screen.SplashScreen.route) {

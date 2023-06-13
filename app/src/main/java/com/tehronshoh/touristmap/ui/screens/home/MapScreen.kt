@@ -1,5 +1,6 @@
 package com.tehronshoh.touristmap.ui.screens.home
 
+import android.os.Parcelable
 import android.util.Log
 import android.view.View.GONE
 import android.view.View.VISIBLE
@@ -38,6 +39,7 @@ import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.CameraPosition
 import com.yandex.mapkit.map.MapObjectTapListener
 import com.yandex.runtime.image.ImageProvider
+import kotlinx.parcelize.Parcelize
 
 private val listOfPlaces = listOf(
     Place("Парк Рудаки", 38.576290022103, 68.7847677535899, ""),
@@ -47,8 +49,18 @@ private val listOfPlaces = listOf(
     Place("Филиал МГУ им. М.В. Ломоносова", 38.57935204500182, 68.79011909252935, "")
 )
 
+@Parcelize
+data class MapKitConfigure(
+    val pointLatitude: Double,
+    val pointLongitude: Double,
+    val currentZoom: Float,
+    val azimuth: Float = 0f,
+    val tilt: Float = 0f
+) : Parcelable
+
 @Composable
-fun MapScreen() {
+fun MapScreen(currentPosition: Point, mapKitConfigure: MapKitConfigure, onConfigureChange: (MapKitConfigure) -> Unit) {
+
     var showBottomSheet by remember {
         mutableStateOf(false)
     }
@@ -64,18 +76,13 @@ fun MapScreen() {
     val context = LocalContext.current
     val isUserLocationEnable = true
 
-    val listener = MapObjectTapListener { _, point ->
+    val listener = MapObjectTapListener { _, p ->
         Log.d("TAG_MAP", "onCreate: Tapped!")
-        choosingPlace = Place("", point.latitude, point.longitude, "")
+        choosingPlace = Place("", p.latitude, p.longitude, "")
         showBottomSheet = true
 
         true
     }
-
-    val point = Point(
-        /*currentPosition?.latitude ?: */38.57935204500182,
-        /*currentPosition?.longitude ?: */68.79011909252935
-    )
 
     Column(
         modifier = Modifier
@@ -97,9 +104,18 @@ fun MapScreen() {
                     Log.d("TAG_MAP", "MapScreen: MapKit Started!")
 
                     mapKitUtil?.apply {
+                        Log.d("TAG_MAP", "MapScreen: $mapKitConfigure")
                         initialize(
                             context = context,
-                            cameraPosition = CameraPosition(point, 8f, 0f, 0f),
+                            cameraPosition = CameraPosition(
+                                Point(
+                                    mapKitConfigure.pointLatitude,
+                                    mapKitConfigure.pointLongitude
+                                ),
+                                mapKitConfigure.currentZoom,
+                                mapKitConfigure.azimuth,
+                                mapKitConfigure.tilt
+                            ),
                             animation = Animation(Animation.Type.SMOOTH, 0.3f),
                             zoomInButton = zoomInButton,
                             zoomOutButton = zoomOutButton
@@ -134,6 +150,15 @@ fun MapScreen() {
                     mapKitUtil?.start()
                     onDispose {
                         Log.d("TAG_MAP", "MapScreen: MapKit Stopped!")
+                        onConfigureChange(
+                            MapKitConfigure(
+                                pointLatitude = yandexMapView.map.cameraPosition.target.latitude,
+                                pointLongitude = yandexMapView.map.cameraPosition.target.longitude,
+                                currentZoom = yandexMapView.map.cameraPosition.zoom,
+                                azimuth = yandexMapView.map.cameraPosition.azimuth,
+                                tilt = yandexMapView.map.cameraPosition.tilt
+                            )
+                        )
                         mapKitUtil?.stop()
                     }
                 }
@@ -142,7 +167,7 @@ fun MapScreen() {
                     PlaceModalBottomSheetInitialize(
                         showBottomSheet = showBottomSheet,
                         choosingPlace = choosingPlace,
-                        currentPosition = point,
+                        currentPosition = currentPosition,
                         mapKitUtil = it,
                         onBottomStateChange = { b ->
                             showBottomSheet = b
@@ -223,5 +248,5 @@ private fun PlaceModalBottomSheetInitialize(
 @Preview
 @Composable
 private fun MapScreenPreview() {
-    MapScreen()
+    //MapScreen()
 }
