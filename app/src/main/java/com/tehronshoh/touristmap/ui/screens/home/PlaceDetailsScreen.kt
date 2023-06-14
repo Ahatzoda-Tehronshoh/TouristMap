@@ -27,6 +27,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
@@ -37,6 +38,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.load.DataSource
@@ -63,7 +65,9 @@ fun PlaceDetailsScreen(place: Place, onNavigateBack: () -> Unit) {
 @Composable
 fun ScreenContent(place: Place) {
     val scrollState = rememberScrollState()
-    Column(modifier = Modifier.fillMaxSize().verticalScroll(state = scrollState)) {
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .verticalScroll(state = scrollState)) {
         Text(
             text = place.name,
             fontSize = 16.sp,
@@ -100,7 +104,7 @@ fun ListOfImages(images: List<String>) {
                 Spacer(modifier = Modifier.width(30.dp))
 
             Log.d("TAG_DETAILS", "ListOfImages: ${RetrofitClient.BASE_URL + url}")
-            GlideImage(
+            AsyncImage(
                 model = RetrofitClient.BASE_URL + url,
                 contentDescription = "image",
                 contentScale = ContentScale.Crop,
@@ -108,52 +112,18 @@ fun ListOfImages(images: List<String>) {
                     120.dp,
                     100.dp
                 )
-            ) {
-                it.addListener(object : RequestListener<Drawable>{
-                    override fun onLoadFailed(
-                        e: GlideException?,
-                        model: Any?,
-                        target: Target<Drawable>?,
-                        isFirstResource: Boolean
-                    ): Boolean {
-                        return true
-                    }
-
-                    override fun onResourceReady(
-                        resource: Drawable?,
-                        model: Any?,
-                        target: Target<Drawable>?,
-                        dataSource: DataSource?,
-                        isFirstResource: Boolean
-                    ): Boolean {
-                        return true
-                    }
-
-                })
-                    .placeholder(R.color.primary_100)
-                    .error(R.color.black_10_alpha)
-                    .load(RetrofitClient.BASE_URL + url)
-            }
+            )
             Spacer(modifier = Modifier.width(20.dp))
         }
     }
-    /*
-        GlideLazyListPreloader(
-            state = listStateRemember,
-            data = images,
-            size = Size(600f, 500f),
-            numberOfItemsToPreload = 7,
-            fixedVisibleItemCount = 2,
-        ) { item, requestBuilder ->
-            requestBuilder.load(RetrofitClient.BASE_URL + item)
-        }*/
 }
 
 @Composable
 private fun TopBar(isFav: Boolean, onNavigateBack: () -> Unit) {
     Row(
         modifier = Modifier
-            .padding(30.dp)
+            .padding(horizontal = 30.dp)
+            .padding(top = 25.dp, bottom = 12.dp)
             .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {

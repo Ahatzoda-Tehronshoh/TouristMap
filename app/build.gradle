@@ -79,7 +79,7 @@ dependencies {
     implementation "androidx.compose.material:material-icons-extended:1.4.3"
 
     // Navigation with Compose
-    implementation "androidx.navigation:navigation-compose:2.5.3"
+    implementation "androidx.navigation:navigation-compose:2.6.0"
 
     // Coroutines
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
@@ -93,6 +93,9 @@ dependencies {
 
     //GLIDE
     implementation "com.github.bumptech.glide:compose:1.0.0-alpha.1"
+
+    //COIL
+    implementation("io.coil-kt:coil-compose:2.4.0")
 //#######################################################################################################
     /*** YANDEX MapKit ***/
 //#######################################################################################################
