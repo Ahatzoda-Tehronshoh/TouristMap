@@ -38,7 +38,7 @@ class MapKitUtil(
     }
 
     private val userLocationLayer by lazy {
-        mapKit.createUserLocationLayer(mapView.mapWindow)
+            mapKit.createUserLocationLayer(mapView.mapWindow)
     }
 
     private val mapObjects: MapObjectCollection by lazy {
@@ -142,11 +142,17 @@ class MapKitUtil(
     }
 
     fun changeTrafficVisibility() {
-        trafficLayer.isTrafficVisible = !trafficLayer.isTrafficVisible
+        try {
+            trafficLayer.isTrafficVisible = !trafficLayer.isTrafficVisible
+        } catch (_: Exception) {
+        }
     }
 
     fun changeUserLocationVisibility() {
-        userLocationLayer.isVisible = !userLocationLayer.isVisible
+        try {
+            userLocationLayer.isVisible = !userLocationLayer.isVisible
+        } catch (_: Exception) {
+        }
     }
 
     override fun onDrivingRoutes(routes: MutableList<DrivingRoute>) {

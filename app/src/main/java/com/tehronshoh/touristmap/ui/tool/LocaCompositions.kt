@@ -4,9 +4,12 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.staticCompositionLocalOf
 import com.tehronshoh.touristmap.model.NetworkResult
 import com.tehronshoh.touristmap.model.Place
+import com.tehronshoh.touristmap.model.User
 import com.tehronshoh.touristmap.utils.MapKitUtil
 import com.yandex.mapkit.geometry.Point
 
+
+val LocalUser = compositionLocalOf<User?> { null }
 
 val LocalUserCurrentPosition = compositionLocalOf<Point?> { null }
 

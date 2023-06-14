@@ -10,13 +10,11 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 
 class SignInViewModel : ViewModel() {
-    private val remoteRepository = RemoteRepository()
-
     fun signIn(user: User): Flow<NetworkResult<List<User>>> = flow {
         try {
             emit(NetworkResult.Loading())
 
-            val result = remoteRepository.logIn(user)
+            val result = RemoteRepository.logIn(user)
 
             if (result.isSuccessful && result.code() == 200 && result.body() != null)
                 emit(NetworkResult.Success(data = result.body()!!))

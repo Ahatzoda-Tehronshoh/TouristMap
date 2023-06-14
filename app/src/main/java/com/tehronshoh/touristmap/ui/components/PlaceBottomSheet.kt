@@ -58,7 +58,7 @@ fun PlaceBottomSheet(
 @Composable
 fun PlaceBottomSheetPreview() {
     PlaceBottomSheet(
-        Place(0, "Парк Рудаки", 38.576290022103, 68.7847677535899, "", listOf()),
+        Place(0, "Парк Рудаки", 38.576290022103, 68.7847677535899, "","", 1, listOf()),
         rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Expanded),
         {}
     ) {}

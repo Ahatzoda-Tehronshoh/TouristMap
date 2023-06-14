@@ -13,9 +13,12 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import com.tehronshoh.touristmap.R
+import com.tehronshoh.touristmap.ui.tool.LocalUser
 
 @Composable
 fun ProfileScreen() {
+    val currentUser = LocalUser.current
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -24,7 +27,7 @@ fun ProfileScreen() {
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "Profile Screen",
+            text = currentUser.toString(),
             fontSize = 32.sp,
             style = TextStyle(color = colorResource(id = R.color.primary))
         )

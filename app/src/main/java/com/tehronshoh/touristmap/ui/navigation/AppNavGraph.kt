@@ -21,10 +21,17 @@ import com.tehronshoh.touristmap.ui.screens.SplashScreen
 import com.tehronshoh.touristmap.ui.screens.authorization.SignInScreen
 import com.tehronshoh.touristmap.ui.screens.authorization.SignUpScreen
 import com.tehronshoh.touristmap.ui.screens.home.HomeScreen
+import com.tehronshoh.touristmap.utils.SharedPreferencesUtil
 import com.tehronshoh.touristmap.viewmodel.SignInViewModel
 import com.tehronshoh.touristmap.viewmodel.SignUpViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+
+var currentUser_SS: User? = null
+    set(value) {
+        field = value
+        Log.d("TAG_ADD", ": $field")
+    }
 
 @Composable
 fun AppNavGraph(
@@ -33,19 +40,27 @@ fun AppNavGraph(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    val sharedPreferencesUtil = SharedPreferencesUtil.getInstance(context)
 
     NavHost(
         navController = navController,
-        startDestination = Screen.Home.route,
+        startDestination = Screen.SplashScreen.route,
         modifier = modifier
     ) {
         composable(route = Screen.SplashScreen.route) {
             SplashScreen {
-                navController.navigate(Screen.LogIn.route) {
-                    popUpTo(route = Screen.SplashScreen.route) {
-                        inclusive = true
+                if(currentUser_SS == null)
+                    navController.navigate(Screen.LogIn.route) {
+                        popUpTo(route = Screen.SplashScreen.route) {
+                            inclusive = true
+                        }
                     }
-                }
+                else
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(route = Screen.SplashScreen.route) {
+                            inclusive = true
+                        }
+                    }
             }
         }
 
@@ -61,6 +76,7 @@ fun AppNavGraph(
                     navController.navigate(Screen.Registration.route)
                 },
                 onNavigateToMainWithoutLogIn = {
+                    Log.d("TAG_AUTH", "AppNavGraph: Open as Guest!")
                     navController.navigate(Screen.Home.route)
                 }
             ) { user ->
@@ -74,7 +90,9 @@ fun AppNavGraph(
                             is NetworkResult.Success<List<User>> -> {
                                 isLoading = false
                                 if (result.data!!.size == 1) {
+                                    Log.d("TAG_AUTH", "AppNavGraph: RIGHT!")
                                     navController.navigate(Screen.Home.route)
+                                    sharedPreferencesUtil.updateUserId(result.data[0].id)
                                 } else {
                                     Log.d("TAG_AUTH", "AppNavGraph: Wrong!")
                                     Toast.makeText(
@@ -109,6 +127,7 @@ fun AppNavGraph(
                     navController.navigateUp()
                 },
                 onNavigateToMainWithoutLogIn = {
+
                     navController.navigate(Screen.Home.route) {
                         popUpTo(route = Screen.LogIn.route)
                     }
@@ -117,16 +136,17 @@ fun AppNavGraph(
                 coroutineScope.launch(Dispatchers.Main) {
                     viewModel.registration(user).collect { result ->
                         when (result) {
-                            is NetworkResult.Loading<String> -> {
+                            is NetworkResult.Loading<Int> -> {
                                 isLoading = true
                             }
 
-                            is NetworkResult.Success<String> -> {
+                            is NetworkResult.Success<Int> -> {
                                 isLoading = false
                                 navController.navigate(Screen.Home.route)
+                                sharedPreferencesUtil.updateUserId(result.data!!)
                             }
 
-                            is NetworkResult.Error<String> -> {
+                            is NetworkResult.Error<Int> -> {
                                 isLoading = false
                                 Log.d("TAG_AUTH", "AppNavGraph: ${result.message}")
                                 Toast.makeText(context, result.message, Toast.LENGTH_SHORT)

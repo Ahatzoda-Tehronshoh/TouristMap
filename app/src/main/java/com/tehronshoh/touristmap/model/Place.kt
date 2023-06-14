@@ -13,6 +13,6 @@ data class Place(
     val description: String,
     val category: String = "",
     @SerializedName("is_favorite")
-    val isFavorite: Boolean,
+    val isFavorite: Int,
     val images: List<String>,
 ): Parcelable

@@ -11,13 +11,11 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 
 class SignUpViewModel : ViewModel() {
-    private val remoteRepository = RemoteRepository()
-
-    fun registration(user: User): Flow<NetworkResult<String>> = flow {
+    fun registration(user: User): Flow<NetworkResult<Int>> = flow {
         try {
             emit(NetworkResult.Loading())
 
-            val result = remoteRepository.registration(user)
+            val result = RemoteRepository.registration(user)
 
             emit(
                 if (result.isSuccessful && result.code() == 200 && result.body() != null)

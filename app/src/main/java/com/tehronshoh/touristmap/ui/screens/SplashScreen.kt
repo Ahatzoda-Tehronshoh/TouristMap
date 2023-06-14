@@ -15,7 +15,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.tehronshoh.touristmap.R
+import com.tehronshoh.touristmap.model.User
 import com.tehronshoh.touristmap.ui.components.AppIcon
+import com.tehronshoh.touristmap.ui.tool.LocalUser
 import kotlinx.coroutines.delay
 
 @Composable
@@ -27,16 +29,16 @@ fun SplashScreen(
     }
 
     // AnimationEffect
-    LaunchedEffect(key1 = true) {
-        scale.animateTo(
-            targetValue = 0.7f,
-            animationSpec = tween(
-                durationMillis = 800,
-                easing = {
-                    OvershootInterpolator(4f).getInterpolation(it)
-                })
-        )
-        delay(2000L)
+    LaunchedEffect(Unit) {
+            scale.animateTo(
+                targetValue = 0.7f,
+                animationSpec = tween(
+                    durationMillis = 800,
+                    easing = {
+                        OvershootInterpolator(4f).getInterpolation(it)
+                    })
+            )
+        delay(3500L)
         onNavigate()
     }
 
@@ -57,5 +59,5 @@ fun SplashScreen(
 @Preview
 @Composable
 private fun SplashScreenPreview() {
-    SplashScreen {}
+    SplashScreen() {}
 }

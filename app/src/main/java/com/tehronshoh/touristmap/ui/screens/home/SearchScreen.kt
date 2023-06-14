@@ -244,6 +244,8 @@ fun SearchScreen(
                 .weight(1f),
             contentAlignment = Alignment.Center
         ) {
+            val curPos = LocalUserCurrentPosition.current
+
             when (val result = LocalFilteredPlaces.current) {
                 is NetworkResult.Loading -> {
                     CircularProgressIndicator(
@@ -254,7 +256,19 @@ fun SearchScreen(
 
                 is NetworkResult.Success -> {
                     PlaceList(
-                        places = result.data!!,
+                        places = result.data!!.filter {
+                            it.name.lowercase().contains(searchingText.lowercase())
+                        }.sortedWith(compareBy {
+                            when (choosingFilter) {
+                                Filter.BY_NAME -> it.name
+                                Filter.BY_DESTINATION -> {
+                                    curPos?.let {p ->
+                                        "Расстояние: " + p.distance(Point(it.latitude, it.longitude))
+                                    } ?: (it.latitude + it.longitude)
+                                }
+                                Filter.DEFAULT -> it.id
+                            }
+                        }),
                         onPlaceSelected = { onNavigateToPlaceDetailsScreen(it.id) }
                     )
                 }
@@ -319,7 +333,7 @@ fun PlaceListItem(place: Place, onPlaceSelected: (Place) -> Unit) {
                 .size(50.dp)
                 .clip(RoundedCornerShape(5.dp)),
             contentScale = ContentScale.Crop
-        ) { it ->
+        ) {
             it.load(place.images.firstOrNull()?.let { url -> RetrofitClient.BASE_URL + url } ?: R.drawable.auth_image)
         }
         Column(
@@ -350,8 +364,9 @@ fun PlaceListItem(place: Place, onPlaceSelected: (Place) -> Unit) {
                 modifier = Modifier.alpha(0.5f)
             )
         }
+        val favIcon = if(place.isFavorite == 1)  R.drawable.selected_star else R.drawable.un_star
         Image(
-            imageVector = ImageVector.vectorResource(id = R.drawable.un_star),
+            imageVector = ImageVector.vectorResource(id = favIcon),
             contentDescription = "like",
             modifier = Modifier.padding(end = 12.dp)
         )
@@ -361,7 +376,7 @@ fun PlaceListItem(place: Place, onPlaceSelected: (Place) -> Unit) {
 @Preview
 @Composable
 private fun PlaceListPreview() {
-    PlaceList(places = MainViewModel().getListOfPlace(), onPlaceSelected = {})
+    //PlaceList(places = MainViewModel().listOfPlace.value, onPlaceSelected = {})
 }
 
 

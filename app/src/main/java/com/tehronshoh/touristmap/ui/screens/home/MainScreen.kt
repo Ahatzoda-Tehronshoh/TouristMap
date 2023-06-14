@@ -97,7 +97,9 @@ fun MainScreen(
                     SearchScreen(
                         searchingText = searchingText,
                         modifier = Modifier.padding(padding),
-                        onSearchingTextChange = { searchingText = it },
+                        onSearchingTextChange = {
+                            searchingText = it
+                        },
                         onSearchingCancel = { searchingText = "" },
                         choosingFilter = choosingFilter,
                         onFilterChange = { choosingFilter = it },

@@ -11,18 +11,25 @@ import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.tehronshoh.touristmap.ui.navigation.AppNavGraph
+import com.tehronshoh.touristmap.ui.tool.LocalUser
 import com.tehronshoh.touristmap.ui.tool.LocalUserCurrentPosition
+import com.tehronshoh.touristmap.utils.SharedPreferencesUtil
+import com.tehronshoh.touristmap.viewmodel.ActivityViewModel
 import com.yandex.mapkit.geometry.Point
 
 class MapsActivity : AppCompatActivity(), OnRequestPermissionsResultCallback {
-
+    private val sharedPreferencesUtil = SharedPreferencesUtil.getInstance(this)
     private var currentPosition = mutableStateOf<Point?>(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,17 +39,29 @@ class MapsActivity : AppCompatActivity(), OnRequestPermissionsResultCallback {
 
         setContent {
             AppTheme {
+                val activityViewModel: ActivityViewModel = viewModel()
+
                 val navController = rememberNavController()
 
                 val currentPositionRemember = remember {
                     currentPosition
                 }
 
-                CompositionLocalProvider(LocalUserCurrentPosition provides currentPositionRemember.value) {
-                    AppNavGraph(
-                        fragmentManager = supportFragmentManager,
-                        navController = navController
-                    )
+                val user = activityViewModel.userFlow.collectAsState()
+
+                LaunchedEffect(sharedPreferencesUtil.userId) {
+                    activityViewModel.getUserById(sharedPreferencesUtil.userId.value)
+                }
+
+                Log.d("TAG_APP", "onCreate: ${user.value}")
+
+                CompositionLocalProvider(LocalUser provides user.value) {
+                    CompositionLocalProvider(LocalUserCurrentPosition provides currentPositionRemember.value) {
+                        AppNavGraph(
+                            fragmentManager = supportFragmentManager,
+                            navController = navController
+                        )
+                    }
                 }
             }
         }
