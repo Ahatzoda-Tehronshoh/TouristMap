@@ -1,5 +1,9 @@
 package com.tehronshoh.touristmap.model
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
 data class Place(
     val id: Int,
     val name: String,
@@ -8,4 +12,4 @@ data class Place(
     val description: String,
     val images: List<String>,
     val category: String = "",
-)
+): Parcelable

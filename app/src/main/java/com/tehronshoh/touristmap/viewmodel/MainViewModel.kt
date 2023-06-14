@@ -11,21 +11,24 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class MainViewModel : ViewModel() {
+    private var listOfPlace: List<Place>? = null
+
     private val _listOfPlaceLiveData = MutableLiveData<NetworkResult<List<Place>>>()
     val listOfPlaceLiveData: LiveData<NetworkResult<List<Place>>>
         get() = _listOfPlaceLiveData
 
     fun getListOfPlace(): List<Place> {
-        return listOf(
+        return listOfPlace ?: listOf(
             Place(0, "Парк Рудаки", 38.576290022103, 68.7847677535899, "", listOf()),
-            Place(1, "Дворец Нации", 38.57625532932752, 68.77876043971129, "", listOf()),
+            Place(1, "Дворец Нации", 38.57625532932752, 68.77876043971129, "",
+                listOf("/photos/soft_skills.png", "/photos/soft_skills.png")),
             Place(
                 2,
                 "Парк национального флага",
                 38.58121398293717,
                 68.78074208988657,
                 "",
-                listOf()
+                listOf("/photos/soft_skills.png", "/photos/soft_skills.png", "/photos/soft_skills.png", "/photos/soft_skills.png", "/photos/soft_skills.png")
             ),
             Place(
                 3,
@@ -33,7 +36,7 @@ class MainViewModel : ViewModel() {
                 38.582388153207894,
                 68.77991596953152,
                 "",
-                listOf()
+                listOf("/photos/soft_skills.png", "/photos/soft_skills.png", "/photos/soft_skills.png")
             ),
             Place(
                 4,
@@ -41,9 +44,11 @@ class MainViewModel : ViewModel() {
                 38.57935204500182,
                 68.79011909252935,
                 "",
-                listOf()
+                listOf("/photos/soft_skills.png")
             )
-        )
+        ).also {
+            listOfPlace = it
+        }
     }
 
     fun getListOfPlace(filter: Filter) = viewModelScope.launch(Dispatchers.IO) {
@@ -51,14 +56,15 @@ class MainViewModel : ViewModel() {
 
         val listOfPlaces = listOf(
             Place(0, "Парк Рудаки", 38.576290022103, 68.7847677535899, "", listOf()),
-            Place(1, "Дворец Нации", 38.57625532932752, 68.77876043971129, "", listOf()),
+            Place(1, "Дворец Нации", 38.57625532932752, 68.77876043971129, "",
+                listOf("/photos/soft_skills.png", "/photos/soft_skills.png")),
             Place(
                 2,
                 "Парк национального флага",
                 38.58121398293717,
                 68.78074208988657,
                 "",
-                listOf()
+                listOf("/photos/soft_skills.png", "/photos/soft_skills.png", "/photos/soft_skills.png", "/photos/soft_skills.png", "/photos/soft_skills.png")
             ),
             Place(
                 3,
@@ -66,7 +72,7 @@ class MainViewModel : ViewModel() {
                 38.582388153207894,
                 68.77991596953152,
                 "",
-                listOf()
+                listOf("/photos/soft_skills.png", "/photos/soft_skills.png", "/photos/soft_skills.png")
             ),
             Place(
                 4,
@@ -74,7 +80,7 @@ class MainViewModel : ViewModel() {
                 38.57935204500182,
                 68.79011909252935,
                 "",
-                listOf()
+                listOf("/photos/soft_skills.png")
             )
         ).sortedWith(compareBy {
             when (filter) {

@@ -50,7 +50,7 @@ fun BottomNavigationBar(navController: NavHostController) {
         val currentRoute = navBackStackEntry?.destination?.route
 
         HomeScreen.BottomNavItems.forEach { navItem ->
-            val selected = (currentRoute == navItem.route)
+            val selected = (currentRoute == navItem.route || navItem.route == "nested_main")
 
             val labelColor = if (selected)
                 colorResource(id = R.color.primary)
@@ -62,7 +62,7 @@ fun BottomNavigationBar(navController: NavHostController) {
             else
                 navItem.inactiveIcon
 
-            val padding = if(navItem.route == Screen.Main.route)
+            val padding = if(navItem.route == "nested_main")
                 PaddingValues(end = 15.dp)
             else
                 PaddingValues(start = 15.dp)

@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tehronshoh.touristmap.R
 import com.tehronshoh.touristmap.model.Filter
+import com.tehronshoh.touristmap.model.Place
 import com.tehronshoh.touristmap.model.TopPagerBarItem
 import com.tehronshoh.touristmap.ui.tool.LocalUserCurrentPosition
 import com.tehronshoh.touristmap.ui.navigation.Screen
@@ -46,7 +47,9 @@ object MainScreen {
 }
 
 @Composable
-fun MainScreen() {
+fun MainScreen(
+    onNavigateToPlaceDetailsScreen: (Int) -> Unit
+) {
     var currentOpenPage by rememberSaveable {
         mutableStateOf(MainScreen.pages[0])
     }
@@ -97,7 +100,8 @@ fun MainScreen() {
                         onSearchingTextChange = { searchingText = it },
                         onSearchingCancel = { searchingText = "" },
                         choosingFilter = choosingFilter,
-                        onFilterChange = { choosingFilter = it }
+                        onFilterChange = { choosingFilter = it },
+                        onNavigateToPlaceDetailsScreen = onNavigateToPlaceDetailsScreen
                     )
                 }
                 Screen.Map.route -> {
@@ -175,5 +179,5 @@ fun TopPagerBar(currentOpenPage: TopPagerBarItem, onPageChange: (TopPagerBarItem
 @Preview
 @Composable
 private fun MainScreenPreview() {
-    MainScreen()
+    MainScreen {}
 }

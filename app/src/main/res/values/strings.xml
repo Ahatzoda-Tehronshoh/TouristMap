@@ -21,4 +21,6 @@
     <string name="by_default">По умолчанию</string>
     <string name="nearest">Ближайшие</string>
     <string name="name">Название</string>
+
+    <string name="description">Описание</string>
 </resources>

@@ -10,6 +10,7 @@ sealed class Screen(val route: String, @StringRes val labelId: Int? = null) {
     object Home: Screen(HOME_ROUTE)
     object Main: Screen(route = MAIN_ROUTE, labelId = R.string.main)
     object Search: Screen(route = SEARCH_ROUTE, labelId = R.string.search)
+    object PlaceDetails: Screen(route = DETAILS_ROUTE)
     object Map: Screen(route = MAP_ROUTE, labelId = R.string.map)
     object Profile: Screen(route = PROFILE_ROUTE, labelId = R.string.profile)
 }

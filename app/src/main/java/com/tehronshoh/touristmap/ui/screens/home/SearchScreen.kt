@@ -64,6 +64,7 @@ import com.tehronshoh.touristmap.extensions.distance
 import com.tehronshoh.touristmap.model.Filter
 import com.tehronshoh.touristmap.model.NetworkResult
 import com.tehronshoh.touristmap.model.Place
+import com.tehronshoh.touristmap.remote.RetrofitClient
 import com.tehronshoh.touristmap.ui.tool.LocalFilteredPlaces
 import com.tehronshoh.touristmap.ui.tool.LocalUserCurrentPosition
 import com.tehronshoh.touristmap.viewmodel.MainViewModel
@@ -76,7 +77,8 @@ fun SearchScreen(
     onSearchingTextChange: (String) -> Unit,
     onSearchingCancel: () -> Unit,
     choosingFilter: Filter,
-    onFilterChange: (Filter) -> Unit
+    onFilterChange: (Filter) -> Unit,
+    onNavigateToPlaceDetailsScreen: (Int) -> Unit
 ) {
     var dropDownPosition by remember {
         mutableStateOf(Offset(x = 600f, y = 10f))
@@ -253,7 +255,7 @@ fun SearchScreen(
                 is NetworkResult.Success -> {
                     PlaceList(
                         places = result.data!!,
-                        onPlaceSelected = { }
+                        onPlaceSelected = { onNavigateToPlaceDetailsScreen(it.id) }
                     )
                 }
 
@@ -311,14 +313,14 @@ fun PlaceListItem(place: Place, onPlaceSelected: (Place) -> Unit) {
         horizontalArrangement = Arrangement.Center
     ) {
         GlideImage(
-            model = place.images.firstOrNull() ?: R.drawable.auth_image,
+            model = place.images.firstOrNull()?.let { RetrofitClient.BASE_URL + it } ?: R.drawable.auth_image,
             contentDescription = place.name,
             modifier = Modifier
                 .size(50.dp)
                 .clip(RoundedCornerShape(5.dp)),
             contentScale = ContentScale.Crop
-        ) {
-            it.load(place.images.firstOrNull() ?: R.drawable.auth_image)
+        ) { it ->
+            it.load(place.images.firstOrNull()?.let { url -> RetrofitClient.BASE_URL + url } ?: R.drawable.auth_image)
         }
         Column(
             modifier = Modifier
