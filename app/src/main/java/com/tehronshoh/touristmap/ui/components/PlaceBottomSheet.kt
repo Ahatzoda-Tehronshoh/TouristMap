@@ -4,6 +4,8 @@ import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetState
@@ -15,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.tehronshoh.touristmap.model.Place
+import com.tehronshoh.touristmap.ui.screens.home.PlaceDetailsScreen
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -24,28 +27,17 @@ fun PlaceBottomSheet(
     buildRoute: () -> Unit,
     onClose: () -> Unit
 ){
+    val scrollState = rememberScrollState()
     Log.d("TAG_TEST", "PlaceBottomSheet: Opened!")
     ModalBottomSheetLayout(
         sheetState = sheetState,
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(scrollState),
         sheetContent = {
-            Column (
-                modifier = Modifier.fillMaxSize()
-            ) {
-              Text(
-                  text = place.name
-              )
-                Button(
-                    content = {
-                        Text(
-                            text = "Построить маршрут до \"${place.name}\""
-                        )
-                    },
-                    onClick = {
-                        buildRoute()
-                    }
-                )
-            }
+           PlaceDetailsScreen(place = place, isBackButtonShow = false) {
+               onClose()
+           }
     }) {}
 
     BackHandler(sheetState.isVisible) {

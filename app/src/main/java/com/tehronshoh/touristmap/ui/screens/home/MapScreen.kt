@@ -191,11 +191,7 @@ private fun PlaceModalBottomSheetInitialize(
 ) {
     val context = LocalContext.current
 
-    val sheetState = rememberModalBottomSheetState(
-        initialValue = ModalBottomSheetValue.Hidden,
-        confirmValueChange = { it != ModalBottomSheetValue.Expanded },
-        //skipHalfExpanded = true
-    )
+    val sheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
 
     val coroutineScope = rememberCoroutineScope()
 

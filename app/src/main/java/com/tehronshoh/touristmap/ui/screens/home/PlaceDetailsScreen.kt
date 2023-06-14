@@ -1,6 +1,5 @@
 package com.tehronshoh.touristmap.ui.screens.home
 
-import android.graphics.drawable.Drawable
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -27,7 +26,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
@@ -40,23 +38,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
-import com.bumptech.glide.load.DataSource
-import com.bumptech.glide.load.engine.GlideException
-import com.bumptech.glide.request.RequestListener
-import com.bumptech.glide.request.target.Target
 import com.tehronshoh.touristmap.R
 import com.tehronshoh.touristmap.model.Place
 import com.tehronshoh.touristmap.remote.RetrofitClient
 
 @Composable
-fun PlaceDetailsScreen(place: Place, onNavigateBack: () -> Unit) {
+fun PlaceDetailsScreen(place: Place, isBackButtonShow: Boolean = true, onNavigateBack: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(color = Color.White)
     ) {
-        TopBar(place.isFavorite == 1, onNavigateBack)
+        TopBar(place.isFavorite == 1, isBackButtonShow, onNavigateBack)
 
         ScreenContent(place)
     }
@@ -119,7 +112,7 @@ fun ListOfImages(images: List<String>) {
 }
 
 @Composable
-private fun TopBar(isFav: Boolean, onNavigateBack: () -> Unit) {
+private fun TopBar(isFav: Boolean, isBackButtonShow: Boolean, onNavigateBack: () -> Unit) {
     Row(
         modifier = Modifier
             .padding(horizontal = 30.dp)
@@ -127,11 +120,12 @@ private fun TopBar(isFav: Boolean, onNavigateBack: () -> Unit) {
             .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Image(
-            imageVector = ImageVector.vectorResource(id = R.drawable.back_button),
-            contentDescription = "Back Button",
-            modifier = Modifier.clickable { onNavigateBack() }
-        )
+        if (isBackButtonShow)
+            Image(
+                imageVector = ImageVector.vectorResource(id = R.drawable.back_button),
+                contentDescription = "Back Button",
+                modifier = Modifier.clickable { onNavigateBack() }
+            )
         Text(
             text = stringResource(id = R.string.description),
             fontSize = 18.sp,
@@ -143,7 +137,7 @@ private fun TopBar(isFav: Boolean, onNavigateBack: () -> Unit) {
         val favIcon = if (isFav) R.drawable.selected_star else R.drawable.un_star
         Image(
             imageVector = ImageVector.vectorResource(id = favIcon),
-            contentDescription = "Back Button"
+            contentDescription = "Favorite Button"
         )
     }
 }
