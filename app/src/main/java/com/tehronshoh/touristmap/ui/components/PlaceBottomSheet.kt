@@ -27,13 +27,10 @@ fun PlaceBottomSheet(
     buildRoute: () -> Unit,
     onClose: () -> Unit
 ){
-    val scrollState = rememberScrollState()
     Log.d("TAG_TEST", "PlaceBottomSheet: Opened!")
     ModalBottomSheetLayout(
         sheetState = sheetState,
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(scrollState),
+        modifier = Modifier.fillMaxSize(),
         sheetContent = {
            PlaceDetailsScreen(place = place, isBackButtonShow = false) {
                onClose()
