@@ -10,13 +10,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.tehronshoh.touristmap.R
 import com.tehronshoh.touristmap.extensions.sharedViewModel
 import com.tehronshoh.touristmap.model.BottomNavItem
+import com.tehronshoh.touristmap.model.RouteDrawingType
 import com.tehronshoh.touristmap.ui.components.BottomNavigationBar
 import com.tehronshoh.touristmap.ui.navigation.Screen
 import com.tehronshoh.touristmap.viewmodel.MainViewModel
@@ -92,17 +92,31 @@ fun HomeScreen() {
                     staticListOfPlaces.firstOrNull { place -> (id == place.id) }?.let { place ->
                         Log.d("TAG_HOME", "HomeScreen: $place")
 
-                        PlaceDetailsScreen(place = place, showOnMap = { showingPlace, isDrawRoute ->
-                            currentOpenPageInMainScreen = MainScreen.pages[1].also { map ->
-                                map.place = showingPlace
-                                map.isDrawRoute = isDrawRoute
-                            }
+                        PlaceDetailsScreen(
+                            place = place,
+                            showOnMap = { showingPlace, routeSettings ->
+                                currentOpenPageInMainScreen = MainScreen.pages[1].also { map ->
+                                    map.place = showingPlace
 
-                            nestedNavController.navigate(Screen.Main.route) {
-                                popUpTo(Screen.Main.route)
-                                launchSingleTop = true
-                            }
-                        }) {
+                                    if (routeSettings != null) {
+                                        if (routeSettings.drawingType != RouteDrawingType.CLEAR && routeSettings.routeType == map.routeSettings?.routeType && routeSettings.transportType == map.routeSettings?.transportType)
+                                            map.routeSettings = map.routeSettings?.also { mapRS ->
+                                                mapRS.points =
+                                                    mapRS.points.toMutableList().also { list ->
+                                                        list.add(routeSettings.points[0])
+                                                    }.toList()
+                                            } ?: routeSettings
+                                        else
+                                            map.routeSettings = routeSettings
+                                    }
+
+                                }
+
+                                nestedNavController.navigate(Screen.Main.route) {
+                                    popUpTo(Screen.Main.route)
+                                    launchSingleTop = true
+                                }
+                            }) {
                             nestedNavController.navigateUp()
                         }
                     }

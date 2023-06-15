@@ -32,6 +32,8 @@ import com.tehronshoh.touristmap.extensions.getBitmapFromVectorDrawable
 import com.tehronshoh.touristmap.extensions.hideBottomSheetPlace
 import com.tehronshoh.touristmap.extensions.showBottomSheetPlace
 import com.tehronshoh.touristmap.model.Place
+import com.tehronshoh.touristmap.model.RouteDrawingType
+import com.tehronshoh.touristmap.model.RouteSettings
 import com.tehronshoh.touristmap.ui.components.PlaceBottomSheet
 import com.tehronshoh.touristmap.ui.tool.LocalStaticPlaces
 import com.tehronshoh.touristmap.ui.tool.LocalUserCurrentPosition
@@ -52,7 +54,7 @@ data class MapKitConfigure(
     val azimuth: Float = 0f,
     val tilt: Float = 0f,
     val place: Place? = null,
-    val isDrawRoute: Boolean = false
+    val routeSettings: RouteSettings? = null
 ) : Parcelable
 
 @Composable
@@ -94,28 +96,114 @@ fun MapScreen(mapKitConfigure: MapKitConfigure, onConfigureChange: (MapKitConfig
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Log.d("TAG_MAP", "MapScreen: ${mapKitConfigure.place} - ${mapKitConfigure.isDrawRoute}")
+        Log.d("TAG_MAP", "MapScreen: ${mapKitConfigure.place} - ${mapKitConfigure.routeSettings}")
         AndroidViewBinding(factory = MapViewBinding::inflate) {
             mapKitUtil = MapKitUtil(yandexMapView)
 
             composeView.setContent {
-                if (showBottomSheet)
-                    composeView.visibility = VISIBLE
-                else
-                    composeView.visibility = GONE
+                if (showBottomSheet) composeView.visibility = VISIBLE
+                else composeView.visibility = GONE
 
-                DisposableEffect(Unit) {
-                    Log.d("TAG_MAP", "MapScreen: MapKit Started!")
+                LaunchedEffect(currentPosition) {
+                    mapKitUtil?.apply {
+                        if (currentPosition != null)
+                            changeUserLocationVisibility()
+
+                        locationVisibility.setOnClickListener {
+                            if (currentPosition != null) {
+                                yandexMapView.map.move(
+                                    CameraPosition(
+                                        currentPosition,
+                                        yandexMapView.map.cameraPosition.zoom,
+                                        0f,
+                                        0f
+                                    )
+                                )
+                                changeUserLocationVisibility()
+                            }
+                        }
+                    }
+                }
+
+                clear.setOnClickListener {
+                    onConfigureChange(
+                        MapKitConfigure(
+                            pointLatitude = yandexMapView.map.cameraPosition.target.latitude,
+                            pointLongitude = yandexMapView.map.cameraPosition.target.longitude,
+                            currentZoom = yandexMapView.map.cameraPosition.zoom,
+                            azimuth = yandexMapView.map.cameraPosition.azimuth,
+                            tilt = yandexMapView.map.cameraPosition.tilt,
+                            place = null,
+                            routeSettings = null
+                        )
+                    )
+                }
+
+                LaunchedEffect(mapKitConfigure) {
+                    if (mapKitConfigure.routeSettings != null) clear.visibility = VISIBLE
+                    else clear.visibility = GONE
 
                     mapKitUtil?.apply {
+                        if (mapKitConfigure.place != null) {
+                            yandexMapView.map.move(
+                                CameraPosition(
+                                    Point(
+                                        mapKitConfigure.place.latitude,
+                                        mapKitConfigure.place.longitude
+                                    ), 18f, 0f, 0f
+                                )
+                            )
+                        }
+
+                        if (mapKitConfigure.routeSettings != null) {
+                            if (currentPosition != null || getLastUpdatesLocation() != null) {
+                                val location = getLastUpdatesLocation() ?: currentPosition
+
+                                submitRequestForDrawingRoute(
+                                    routeStartLocation = Point(
+                                        location!!.latitude, location.longitude
+                                    ),
+                                    mapKitConfigure.routeSettings.points.map {
+                                        Point(
+                                            it.latitude, it.longitude
+                                        )
+                                    },
+                                    mapKitConfigure.routeSettings.routeType,
+                                    mapKitConfigure.routeSettings.transportType
+                                )
+                            } else {
+                                cancelRoutes()
+                                addPlaces(
+                                    listOfPlace.map { place ->
+                                        Point(
+                                            place.latitude, place.longitude
+                                        )
+                                    }, ImageProvider.fromBitmap(
+                                        context.getBitmapFromVectorDrawable(R.drawable.baseline_location_on_24)
+                                    ), listener
+                                )
+
+                                Log.d(
+                                    "TAG_MAP",
+                                    "PlaceModalBottomSheetInitialize: currentPosition = null"
+                                )
+                                Toast.makeText(
+                                    context,
+                                    "Ваше местоположения неизвестно, повторите еще раз!",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+                    }
+                }
+
+                DisposableEffect(Unit) {
+                    mapKitUtil?.apply {
                         initialize(
-                            context = context,
-                            cameraPosition = CameraPosition(
+                            context = context, cameraPosition = CameraPosition(
                                 Point(
-                                    mapKitConfigure.pointLatitude,
-                                    mapKitConfigure.pointLongitude
-                                ),
-                                mapKitConfigure.currentZoom,
+                                    mapKitConfigure.pointLatitude, mapKitConfigure.pointLongitude
+                                ), mapKitConfigure.currentZoom,
                                 mapKitConfigure.azimuth,
                                 mapKitConfigure.tilt
                             ),
@@ -127,38 +215,19 @@ fun MapScreen(mapKitConfigure: MapKitConfigure, onConfigureChange: (MapKitConfig
                         addPlaces(
                             listOfPlace.map { place ->
                                 Point(
-                                    place.latitude,
-                                    place.longitude
+                                    place.latitude, place.longitude
                                 )
-                            },
-                            ImageProvider.fromBitmap(
+                            }, ImageProvider.fromBitmap(
                                 context.getBitmapFromVectorDrawable(R.drawable.baseline_location_on_24)
-                            ),
-                            listener
+                            ), listener
                         )
 
-                        if (currentPosition != null)
-                            changeUserLocationVisibility()
-                    }
-
-                    trafficVisibility.setOnClickListener {
-                        mapKitUtil?.changeTrafficVisibility()
-                    }
-
-                    locationVisibility.setOnClickListener {
-                        if (currentPosition != null) {
-                            yandexMapView.map.move(
-                                CameraPosition(
-                                    currentPosition,
-                                    yandexMapView.map.cameraPosition.zoom,
-                                    0f, 0f
-                                )
-                            )
-                            mapKitUtil?.changeUserLocationVisibility()
+                        trafficVisibility.setOnClickListener {
+                            changeTrafficVisibility()
                         }
-                    }
 
-                    mapKitUtil?.start()
+                        start()
+                    }
                     onDispose {
                         Log.d("TAG_MAP", "MapScreen: MapKit Stopped!")
                         onConfigureChange(
@@ -167,7 +236,9 @@ fun MapScreen(mapKitConfigure: MapKitConfigure, onConfigureChange: (MapKitConfig
                                 pointLongitude = yandexMapView.map.cameraPosition.target.longitude,
                                 currentZoom = yandexMapView.map.cameraPosition.zoom,
                                 azimuth = yandexMapView.map.cameraPosition.azimuth,
-                                tilt = yandexMapView.map.cameraPosition.tilt
+                                tilt = yandexMapView.map.cameraPosition.tilt,
+                                place = null,
+                                routeSettings = mapKitConfigure.routeSettings
                             )
                         )
                         mapKitUtil?.stop()
@@ -175,15 +246,25 @@ fun MapScreen(mapKitConfigure: MapKitConfigure, onConfigureChange: (MapKitConfig
                 }
 
                 mapKitUtil?.let {
-                    PlaceModalBottomSheetInitialize(
-                        showBottomSheet = showBottomSheet,
+                    PlaceModalBottomSheetInitialize(showBottomSheet = showBottomSheet,
                         choosingPlace = choosingPlace,
-                        currentPosition = currentPosition,
-                        mapKitUtil = it,
+                        onConfigureChange = { rs ->
+                            onConfigureChange(MapKitConfigure(pointLatitude = yandexMapView.map.cameraPosition.target.latitude,
+                                pointLongitude = yandexMapView.map.cameraPosition.target.longitude,
+                                currentZoom = yandexMapView.map.cameraPosition.zoom,
+                                azimuth = yandexMapView.map.cameraPosition.azimuth,
+                                tilt = yandexMapView.map.cameraPosition.tilt,
+                                place = null,
+                                routeSettings = if (rs.drawingType != RouteDrawingType.CLEAR && rs.routeType == mapKitConfigure.routeSettings?.routeType && rs.transportType == mapKitConfigure.routeSettings.transportType) mapKitConfigure.routeSettings.also { mapRS ->
+                                    mapRS.points = mapRS.points.toMutableList().also { list ->
+                                        list.add(rs.points[0])
+                                    }.toList()
+                                }
+                                else rs))
+                        },
                         onBottomStateChange = { b ->
                             showBottomSheet = b
-                        }
-                    )
+                        })
                 }
             }
         }
@@ -195,12 +276,9 @@ fun MapScreen(mapKitConfigure: MapKitConfigure, onConfigureChange: (MapKitConfig
 private fun PlaceModalBottomSheetInitialize(
     showBottomSheet: Boolean,
     choosingPlace: Place?,
-    currentPosition: Point?,
-    mapKitUtil: MapKitUtil,
+    onConfigureChange: (RouteSettings) -> Unit,
     onBottomStateChange: (Boolean) -> Unit
 ) {
-    val context = LocalContext.current
-
     val sheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
 
     val coroutineScope = rememberCoroutineScope()
@@ -208,33 +286,10 @@ private fun PlaceModalBottomSheetInitialize(
     if (showBottomSheet) {
         Log.d("TAG_TEST", "onCreate: $choosingPlace")
         choosingPlace?.let {
-            PlaceBottomSheet(place = it,
-                sheetState = sheetState,
-                buildRoute = {
-                    if (currentPosition != null) {
-                        onBottomStateChange(false)
-                        mapKitUtil.submitRequestForDrawingRoute(
-                            routeStartLocation = Point(
-                                currentPosition.latitude,
-                                currentPosition.longitude
-                            ),
-                            routeEndLocation = Point(
-                                it.latitude,
-                                it.longitude
-                            )
-                        )
-                    } else {
-                        Log.d(
-                            "TAG_MAP",
-                            "PlaceModalBottomSheetInitialize: currentPosition = null"
-                        )
-                        Toast.makeText(
-                            context,
-                            "Ваше местоположения неизвестно, повторите еще раз!",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }) {
+            PlaceBottomSheet(place = it, sheetState = sheetState, buildRoute = { rs ->
+                onConfigureChange(rs)
+                onBottomStateChange(false)
+            }) {
                 onBottomStateChange(false)
             }
         }

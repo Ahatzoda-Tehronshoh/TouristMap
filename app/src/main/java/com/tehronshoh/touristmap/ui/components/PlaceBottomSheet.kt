@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.tehronshoh.touristmap.model.Place
+import com.tehronshoh.touristmap.model.RouteSettings
 import com.tehronshoh.touristmap.ui.screens.home.PlaceDetailsScreen
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -19,7 +20,7 @@ import com.tehronshoh.touristmap.ui.screens.home.PlaceDetailsScreen
 fun PlaceBottomSheet(
     place: Place,
     sheetState: ModalBottomSheetState,
-    buildRoute: () -> Unit,
+    buildRoute: (RouteSettings) -> Unit,
     onClose: () -> Unit
 ){
     Log.d("TAG_TEST", "PlaceBottomSheet: Opened!")
@@ -27,9 +28,9 @@ fun PlaceBottomSheet(
         sheetState = sheetState,
         modifier = Modifier.fillMaxSize(),
         sheetContent = {
-           PlaceDetailsScreen(place = place, isBackButtonShow = false, showOnMap = { _, isDrawRoute ->
-               if(isDrawRoute) {
-                   buildRoute()
+           PlaceDetailsScreen(place = place, isBackButtonShow = false, showOnMap = { _, routeSettings ->
+               if(routeSettings != null) {
+                   buildRoute(routeSettings)
                }
            }) {
                onClose()

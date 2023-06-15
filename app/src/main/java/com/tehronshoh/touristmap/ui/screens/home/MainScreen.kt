@@ -107,17 +107,19 @@ fun MainScreen(
                     )
                 }
                 Screen.Map.route -> {
-                    if(currentOpenPage.place != null) {
+                    if(currentOpenPage.place != null || currentOpenPage.routeSettings != null) {
                         mapKitConfigure = MapKitConfigure(
                             pointLatitude = mapKitConfigure.pointLatitude,
                             pointLongitude = mapKitConfigure.pointLongitude,
                             currentZoom = mapKitConfigure.currentZoom,
                             place = currentOpenPage.place,
-                            isDrawRoute = currentOpenPage.isDrawRoute
+                            routeSettings = currentOpenPage.routeSettings
                         )
                     }
                     MapScreen(mapKitConfigure) {
                         mapKitConfigure = it
+                        currentOpenPage.place = it.place
+                        currentOpenPage.routeSettings = it.routeSettings
                     }
                 }
             }

@@ -8,5 +8,5 @@ data class TopPagerBarItem(
     val route: String,
     var labelId: Int,
     var place: Place? = null,
-    var isDrawRoute: Boolean = false
+    var routeSettings: RouteSettings? = null
 ): Parcelable

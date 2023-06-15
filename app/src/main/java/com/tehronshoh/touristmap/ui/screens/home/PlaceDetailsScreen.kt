@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -22,6 +23,11 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -40,17 +46,22 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.tehronshoh.touristmap.R
 import com.tehronshoh.touristmap.model.Place
+import com.tehronshoh.touristmap.model.RouteDrawingType
+import com.tehronshoh.touristmap.model.RouteSettings
+import com.tehronshoh.touristmap.model.RouteType
+import com.tehronshoh.touristmap.model.TransportType
 import com.tehronshoh.touristmap.remote.RetrofitClient
+import com.tehronshoh.touristmap.ui.components.RadioGroup
 
 @Composable
 fun PlaceDetailsScreen(
     place: Place,
     isBackButtonShow: Boolean = true,
-    showOnMap: (place: Place, createRoute: Boolean) -> Unit,
-    onNavigateBack: () -> Unit) {
+    showOnMap: (place: Place, createRoute: RouteSettings?) -> Unit,
+    onNavigateBack: () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -63,41 +74,60 @@ fun PlaceDetailsScreen(
 }
 
 @Composable
-fun ScreenContent(place: Place, asBottomSheetShowing: Boolean, showOnMap: (place: Place, createRoute: Boolean) -> Unit,) {
+fun ScreenContent(
+    place: Place,
+    asBottomSheetShowing: Boolean,
+    showOnMap: (place: Place, createRoute: RouteSettings?) -> Unit
+) {
     val scrollState = rememberScrollState()
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .verticalScroll(state = scrollState)) {
-        Row(modifier = Modifier.padding(horizontal = 16.dp).fillMaxWidth()) {
-            if (!asBottomSheetShowing)
-                Button(
-                    onClick = {
-                        showOnMap(place, false)
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = colorResource(id = R.color.primary)
-                    ),
-                    modifier = Modifier
-                        .padding(bottom = 12.dp, end = 4.dp)
-                        .weight(1f)
-                ) {
-                    Text("Показать на карте", fontSize = 12.sp, textAlign = TextAlign.Center)
-                }
+    var showRouteSettings by remember {
+        mutableStateOf(false)
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(state = scrollState)
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .fillMaxWidth()
+        ) {
+            if (!asBottomSheetShowing) Button(
+                onClick = {
+                    showOnMap(place, null)
+                }, colors = ButtonDefaults.buttonColors(
+                    containerColor = colorResource(id = R.color.primary)
+                ), modifier = Modifier
+                    .padding(bottom = 12.dp, end = 4.dp)
+                    .weight(1f)
+            ) {
+                Text("Показать на карте", fontSize = 12.sp, textAlign = TextAlign.Center)
+            }
+
+            val modifier =
+                if (showRouteSettings) Modifier
+                    .padding(bottom = 12.dp, start = 4.dp)
+                    .weight(1f)
+                    .alpha(0.5f)
+                else Modifier
+                    .padding(bottom = 12.dp, start = 4.dp)
+                    .weight(1f)
 
             Button(
                 onClick = {
-                    showOnMap(place, true)
-                },
-                colors = ButtonDefaults.buttonColors(
+                    showRouteSettings = !showRouteSettings
+                }, colors = ButtonDefaults.buttonColors(
                     containerColor = colorResource(id = R.color.primary)
-                ),
-                modifier = Modifier
-                    .padding(bottom = 12.dp, start = 4.dp)
-                    .weight(1f)
+                ), modifier = modifier
             ) {
                 Text("Построить маршрут", fontSize = 12.sp, textAlign = TextAlign.Center)
             }
         }
+        if (showRouteSettings) RouteSettingsScreen(place = place, onRouteSettingsSelected = {
+            showOnMap(place, it)
+        })
         Text(
             text = place.name,
             fontSize = 16.sp,
@@ -123,6 +153,71 @@ fun ScreenContent(place: Place, asBottomSheetShowing: Boolean, showOnMap: (place
     }
 }
 
+@Composable
+fun RouteSettingsScreen(place: Place, onRouteSettingsSelected: (RouteSettings) -> Unit) {
+    var routeType by rememberSaveable { mutableStateOf(RouteType.ALL) }
+    var transportType by rememberSaveable { mutableStateOf(TransportType.WALKING) }
+    var drawingType by rememberSaveable { mutableStateOf(RouteDrawingType.CLEAR) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp)
+            .background(color = colorResource(id = R.color.primary_100)),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text("Выберите настройки маршрута:", color = Color.Black, textAlign = TextAlign.Center)
+        Spacer(modifier = Modifier.height(8.dp))
+
+        RadioGroup(selectedOption = routeType.label,
+            options = listOf(RouteType.ALL.label, RouteType.SINGLE.label),
+            onOptionSelected = { selectedType ->
+                routeType = when (selectedType) {
+                    RouteType.ALL.label -> RouteType.ALL
+                    else -> RouteType.SINGLE
+                }
+            })
+        Spacer(modifier = Modifier.height(12.dp))
+        RadioGroup(selectedOption = transportType.label, options = listOf(
+            TransportType.WALKING.label, TransportType.CAR.label, TransportType.BICYCLE.label
+        ), onOptionSelected = { selectedType ->
+            transportType = when (selectedType) {
+                TransportType.WALKING.label -> TransportType.WALKING
+                TransportType.BICYCLE.label -> TransportType.BICYCLE
+                else -> TransportType.CAR
+            }
+        })
+        Spacer(modifier = Modifier.height(12.dp))
+        RadioGroup(selectedOption = drawingType.label, options = listOf(
+            RouteDrawingType.CLEAR.label, RouteDrawingType.ADD.label
+        ), onOptionSelected = { selectedType ->
+            drawingType = when (selectedType) {
+                RouteDrawingType.CLEAR.label -> RouteDrawingType.CLEAR
+                else -> RouteDrawingType.ADD
+            }
+        })
+        Spacer(modifier = Modifier.height(12.dp))
+        Button(
+            onClick = {
+                val routeSettings = RouteSettings(
+                    listOf(place),
+                    routeType,
+                    transportType,
+                    drawingType
+                )
+                onRouteSettingsSelected(routeSettings)
+            },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = colorResource(id = R.color.primary)
+            ), modifier = Modifier
+                .padding(bottom = 12.dp, end = 4.dp)
+                .wrapContentWidth()
+        ) {
+            Text("Построить маршрут", fontSize = 12.sp, textAlign = TextAlign.Center)
+        }
+    }
+}
+
 
 @Composable
 fun ListOfImages(images: List<String>) {
@@ -130,8 +225,7 @@ fun ListOfImages(images: List<String>) {
 
     LazyRow(state = listStateRemember) {
         items(images) { url ->
-            if (images.first() == url)
-                Spacer(modifier = Modifier.width(30.dp))
+            if (images.first() == url) Spacer(modifier = Modifier.width(30.dp))
 
             Log.d("TAG_DETAILS", "ListOfImages: ${RetrofitClient.BASE_URL + url}")
             AsyncImage(

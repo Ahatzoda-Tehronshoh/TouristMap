@@ -13,7 +13,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.core.app.ActivityCompat
@@ -30,7 +29,13 @@ import com.yandex.mapkit.geometry.Point
 
 class MapsActivity : AppCompatActivity(), OnRequestPermissionsResultCallback {
     private val sharedPreferencesUtil = SharedPreferencesUtil.getInstance(this)
-    private var currentPosition = mutableStateOf<Point?>(null)
+    private var currentPosition = mutableStateOf(
+        Point(
+            38.57935204500182,
+            68.79011909252935
+        )
+    //38.5804, 68.7291
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,7 +48,7 @@ class MapsActivity : AppCompatActivity(), OnRequestPermissionsResultCallback {
 
                 val navController = rememberNavController()
 
-                val currentPositionRemember = remember {
+                val currentPositionRemember = remember(currentPosition) {
                     currentPosition
                 }
 
@@ -85,6 +90,11 @@ class MapsActivity : AppCompatActivity(), OnRequestPermissionsResultCallback {
                     Manifest.permission.ACCESS_COARSE_LOCATION
                 ) != PackageManager.PERMISSION_GRANTED
             ) {
+                ActivityCompat.requestPermissions(
+                    this, arrayOf(
+                        Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION
+                    ), LOCATION_PERMISSION_REQUEST_CODE
+                )
                 return
             }
 
@@ -99,7 +109,7 @@ class MapsActivity : AppCompatActivity(), OnRequestPermissionsResultCallback {
         // 1. Check if permissions are granted, if so, enable the my location layer
         if (ContextCompat.checkSelfPermission(
                 this, Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
+            ) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
                 this, Manifest.permission.ACCESS_COARSE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
         )
@@ -123,9 +133,14 @@ class MapsActivity : AppCompatActivity(), OnRequestPermissionsResultCallback {
 
     private val locationListener: LocationListener = LocationListener { location ->
         currentPosition.value = Point(location.latitude, location.longitude)
+        Toast.makeText(
+            this,
+            ": ${currentPosition.value.latitude} - ${currentPosition.value.longitude}",
+            Toast.LENGTH_SHORT
+        ).show()
         Log.d(
             "TAG_APP",
-            ": ${currentPosition.value?.latitude} - ${currentPosition.value?.longitude}"
+            ": ${currentPosition.value.latitude} - ${currentPosition.value.longitude}"
         )
     }
 
