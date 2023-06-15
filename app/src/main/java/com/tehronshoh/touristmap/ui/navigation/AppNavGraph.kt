@@ -3,7 +3,10 @@ package com.tehronshoh.touristmap.ui.navigation
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -15,13 +18,17 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.tehronshoh.touristmap.extensions.sharedViewModel
+import com.tehronshoh.touristmap.model.Filter
 import com.tehronshoh.touristmap.model.NetworkResult
 import com.tehronshoh.touristmap.model.User
 import com.tehronshoh.touristmap.ui.screens.SplashScreen
 import com.tehronshoh.touristmap.ui.screens.authorization.SignInScreen
 import com.tehronshoh.touristmap.ui.screens.authorization.SignUpScreen
 import com.tehronshoh.touristmap.ui.screens.home.HomeScreen
+import com.tehronshoh.touristmap.ui.tool.LocalFilteredPlaces
+import com.tehronshoh.touristmap.ui.tool.LocalStaticPlaces
 import com.tehronshoh.touristmap.utils.SharedPreferencesUtil
+import com.tehronshoh.touristmap.viewmodel.MainViewModel
 import com.tehronshoh.touristmap.viewmodel.SignInViewModel
 import com.tehronshoh.touristmap.viewmodel.SignUpViewModel
 import kotlinx.coroutines.Dispatchers
@@ -159,7 +166,26 @@ fun AppNavGraph(
         }
 
         composable(route = Screen.Home.route) {
-            HomeScreen()
+            val viewModel =
+                it.sharedViewModel<MainViewModel>(navController = navController)
+
+            val listOfPlace =
+                viewModel.listOfPlaceLiveData.observeAsState(initial = NetworkResult.Loading())
+
+            LaunchedEffect(Unit) {
+                viewModel.getListOfPlace(Filter.DEFAULT, currentUser_SS?.id ?: -1)
+            }
+
+            val staticListRemember = remember {
+                viewModel.listOfPlace
+            }
+
+            CompositionLocalProvider(
+                LocalStaticPlaces provides staticListRemember.value,
+                LocalFilteredPlaces provides listOfPlace.value
+            ) {
+                HomeScreen()
+            }
         }
     }
 }

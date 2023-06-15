@@ -50,7 +50,9 @@ data class MapKitConfigure(
     val pointLongitude: Double,
     val currentZoom: Float,
     val azimuth: Float = 0f,
-    val tilt: Float = 0f
+    val tilt: Float = 0f,
+    val place: Place? = null,
+    val isDrawRoute: Boolean = false
 ) : Parcelable
 
 @Composable
@@ -92,6 +94,7 @@ fun MapScreen(mapKitConfigure: MapKitConfigure, onConfigureChange: (MapKitConfig
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+        Log.d("TAG_MAP", "MapScreen: ${mapKitConfigure.place} - ${mapKitConfigure.isDrawRoute}")
         AndroidViewBinding(factory = MapViewBinding::inflate) {
             mapKitUtil = MapKitUtil(yandexMapView)
 
@@ -105,7 +108,6 @@ fun MapScreen(mapKitConfigure: MapKitConfigure, onConfigureChange: (MapKitConfig
                     Log.d("TAG_MAP", "MapScreen: MapKit Started!")
 
                     mapKitUtil?.apply {
-                        Log.d("TAG_MAP", "MapScreen: $mapKitConfigure")
                         initialize(
                             context = context,
                             cameraPosition = CameraPosition(

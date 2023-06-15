@@ -18,6 +18,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -26,6 +28,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
@@ -43,7 +46,11 @@ import com.tehronshoh.touristmap.model.Place
 import com.tehronshoh.touristmap.remote.RetrofitClient
 
 @Composable
-fun PlaceDetailsScreen(place: Place, isBackButtonShow: Boolean = true, onNavigateBack: () -> Unit) {
+fun PlaceDetailsScreen(
+    place: Place,
+    isBackButtonShow: Boolean = true,
+    showOnMap: (place: Place, createRoute: Boolean) -> Unit,
+    onNavigateBack: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -51,16 +58,46 @@ fun PlaceDetailsScreen(place: Place, isBackButtonShow: Boolean = true, onNavigat
     ) {
         TopBar(place.isFavorite == 1, isBackButtonShow, onNavigateBack)
 
-        ScreenContent(place)
+        ScreenContent(place, !isBackButtonShow, showOnMap)
     }
 }
 
 @Composable
-fun ScreenContent(place: Place) {
+fun ScreenContent(place: Place, asBottomSheetShowing: Boolean, showOnMap: (place: Place, createRoute: Boolean) -> Unit,) {
     val scrollState = rememberScrollState()
     Column(modifier = Modifier
         .fillMaxSize()
         .verticalScroll(state = scrollState)) {
+        Row(modifier = Modifier.padding(horizontal = 16.dp).fillMaxWidth()) {
+            if (!asBottomSheetShowing)
+                Button(
+                    onClick = {
+                        showOnMap(place, false)
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = colorResource(id = R.color.primary)
+                    ),
+                    modifier = Modifier
+                        .padding(bottom = 12.dp, end = 4.dp)
+                        .weight(1f)
+                ) {
+                    Text("Показать на карте", fontSize = 12.sp)
+                }
+
+            Button(
+                onClick = {
+                    showOnMap(place, true)
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = colorResource(id = R.color.primary)
+                ),
+                modifier = Modifier
+                    .padding(bottom = 12.dp, start = 4.dp)
+                    .weight(1f)
+            ) {
+                Text("Построить маршрут", fontSize = 12.sp)
+            }
+        }
         Text(
             text = place.name,
             fontSize = 16.sp,
@@ -155,6 +192,7 @@ private fun PlaceDetailsScreenPreview() {
             "", 0,
             listOf()
         ),
+        showOnMap = {_, _ ->},
         onNavigateBack = {}
     )
 }

@@ -3,12 +3,10 @@ package com.tehronshoh.touristmap.ui.screens.home
 import android.util.Log
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
@@ -18,14 +16,8 @@ import androidx.navigation.compose.rememberNavController
 import com.tehronshoh.touristmap.R
 import com.tehronshoh.touristmap.extensions.sharedViewModel
 import com.tehronshoh.touristmap.model.BottomNavItem
-import com.tehronshoh.touristmap.model.Filter
-import com.tehronshoh.touristmap.model.NetworkResult
-import com.tehronshoh.touristmap.model.Place
 import com.tehronshoh.touristmap.ui.components.BottomNavigationBar
 import com.tehronshoh.touristmap.ui.navigation.Screen
-import com.tehronshoh.touristmap.ui.tool.LocalFilteredPlaces
-import com.tehronshoh.touristmap.ui.tool.LocalStaticPlaces
-import com.tehronshoh.touristmap.ui.tool.LocalUser
 import com.tehronshoh.touristmap.viewmodel.MainViewModel
 
 
@@ -56,49 +48,32 @@ fun HomeScreen() {
         mutableStateOf(true)
     }
 
+    var currentOpenPageInMainScreen by rememberSaveable {
+        mutableStateOf(MainScreen.pages[0])
+    }
+
     Scaffold(bottomBar = {
-        if (bottomNavBarVisibility)
-            BottomNavigationBar(navController = nestedNavController)
+        if (bottomNavBarVisibility) BottomNavigationBar(navController = nestedNavController)
     }, contentColor = Color.Transparent) { padding ->
         padding
 
         Log.d("TAG_HOME", "HomeScreen: Home Opened!")
         NavHost(
-            navController = nestedNavController,
-            startDestination = Screen.Main.route
+            navController = nestedNavController, startDestination = Screen.Main.route
         ) {
                 composable(route = Screen.Main.route) {
-                    val currentUser = LocalUser.current
                     Log.d("TAG_MAIN", "HomeScreen: Main Opened!")
                     bottomNavBarVisibility = true
 
-                    val viewModel =
-                        it.sharedViewModel<MainViewModel>(navController = nestedNavController)
-
-                    val listOfPlace =
-                        viewModel.listOfPlaceLiveData.observeAsState(initial = NetworkResult.Loading())
-
-                    LaunchedEffect(Unit) {
-                        viewModel.getListOfPlace(Filter.DEFAULT, currentUser?.id ?: -1)
-                    }
-
-                    val staticListRemember = remember {
-                        viewModel.listOfPlace
-                    }
-
-                    CompositionLocalProvider(
-                        LocalStaticPlaces provides staticListRemember.value,
-                        LocalFilteredPlaces provides listOfPlace.value
-                    ) {
-                        MainScreen(
-                            onNavigateToPlaceDetailsScreen = { placeId ->
-                                nestedNavController.navigate(
-                                    Screen.PlaceDetails.route + placeId.toString()
-                                )
-                                Log.d("TAG_HOME", "HomeScreen: $placeId")
-                            }
+                    MainScreen(currentOpenPage = currentOpenPageInMainScreen, openPageChanged = {
+                        currentOpenPageInMainScreen = it
+                    }, onNavigateToPlaceDetailsScreen = { placeId ->
+                        nestedNavController.navigate(
+                            Screen.PlaceDetails.route + placeId.toString()
                         )
-                    }
+                        Log.d("TAG_HOME", "HomeScreen: $placeId")
+                    })
+
                 }
 
                 composable(route = Screen.PlaceDetails.route + "{placeId}") {
@@ -112,7 +87,14 @@ fun HomeScreen() {
                         staticListOfPlaces.firstOrNull { place -> (id == place.id) }?.let { place ->
                             Log.d("TAG_HOME", "HomeScreen: $place")
 
-                            PlaceDetailsScreen(place = place) {
+                            PlaceDetailsScreen(place = place,
+                                showOnMap = { showingPlace, isDrawRoute ->
+                                    currentOpenPageInMainScreen = MainScreen.pages[1].also { map ->
+                                        map.place = showingPlace
+                                        map.isDrawRoute = isDrawRoute
+                                    }
+                                    nestedNavController.navigateUp()
+                                }) {
                                 nestedNavController.navigateUp()
                             }
                         }

@@ -33,27 +33,27 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tehronshoh.touristmap.R
 import com.tehronshoh.touristmap.model.Filter
-import com.tehronshoh.touristmap.model.Place
 import com.tehronshoh.touristmap.model.TopPagerBarItem
-import com.tehronshoh.touristmap.ui.tool.LocalUserCurrentPosition
 import com.tehronshoh.touristmap.ui.navigation.Screen
+import com.tehronshoh.touristmap.ui.tool.LocalUserCurrentPosition
 import com.yandex.mapkit.geometry.Point
 
 object MainScreen {
     val pages = listOf(
         TopPagerBarItem(Screen.Search.route, Screen.Search.labelId!!),
-        TopPagerBarItem(Screen.Map.route, Screen.Map.labelId!!)
+        TopPagerBarItem(
+            Screen.Map.route,
+            Screen.Map.labelId!!
+        )
     )
 }
 
 @Composable
 fun MainScreen(
+    currentOpenPage: TopPagerBarItem,
+    openPageChanged: (TopPagerBarItem) -> Unit,
     onNavigateToPlaceDetailsScreen: (Int) -> Unit
 ) {
-    var currentOpenPage by rememberSaveable {
-        mutableStateOf(MainScreen.pages[0])
-    }
-
     val currentPosition = LocalUserCurrentPosition.current
 
     val point = Point(
@@ -79,7 +79,7 @@ fun MainScreen(
             TopPagerBar(
                 currentOpenPage = currentOpenPage
             ) {
-                currentOpenPage = it
+                openPageChanged(it)
             }
         },
         modifier = Modifier.fillMaxSize(),
@@ -107,6 +107,15 @@ fun MainScreen(
                     )
                 }
                 Screen.Map.route -> {
+                    if(currentOpenPage.place != null) {
+                        mapKitConfigure = MapKitConfigure(
+                            pointLatitude = mapKitConfigure.pointLatitude,
+                            pointLongitude = mapKitConfigure.pointLongitude,
+                            currentZoom = mapKitConfigure.currentZoom,
+                            place = currentOpenPage.place,
+                            isDrawRoute = currentOpenPage.isDrawRoute
+                        )
+                    }
                     MapScreen(mapKitConfigure) {
                         mapKitConfigure = it
                     }
@@ -181,5 +190,8 @@ fun TopPagerBar(currentOpenPage: TopPagerBarItem, onPageChange: (TopPagerBarItem
 @Preview
 @Composable
 private fun MainScreenPreview() {
-    MainScreen {}
+    MainScreen(
+        currentOpenPage = MainScreen.pages[0],
+        openPageChanged = {}
+    ) {}
 }
