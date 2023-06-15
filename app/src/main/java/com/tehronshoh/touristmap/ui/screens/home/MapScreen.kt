@@ -150,7 +150,7 @@ fun MapScreen(mapKitConfigure: MapKitConfigure, onConfigureChange: (MapKitConfig
                                     Point(
                                         mapKitConfigure.place.latitude,
                                         mapKitConfigure.place.longitude
-                                    ), 15f, 0f, 0f
+                                    ), 18f, 0f, 0f
                                 )
                             )
                         }
