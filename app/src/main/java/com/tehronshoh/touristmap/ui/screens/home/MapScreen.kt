@@ -150,7 +150,7 @@ fun MapScreen(mapKitConfigure: MapKitConfigure, onConfigureChange: (MapKitConfig
                                     Point(
                                         mapKitConfigure.place.latitude,
                                         mapKitConfigure.place.longitude
-                                    ), 18f, 0f, 0f
+                                    ), 15f, 0f, 0f
                                 )
                             )
                         }
@@ -160,6 +160,7 @@ fun MapScreen(mapKitConfigure: MapKitConfigure, onConfigureChange: (MapKitConfig
                                 val location = getLastUpdatesLocation() ?: currentPosition
 
                                 submitRequestForDrawingRoute(
+                                    zoom = mapKitConfigure.currentZoom,
                                     routeStartLocation = Point(
                                         location!!.latitude, location.longitude
                                     ),

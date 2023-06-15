@@ -127,12 +127,12 @@ class MapKitUtil(
     }
 
     fun submitRequestForDrawingRoute(
+        zoom: Float,
         routeStartLocation: Point,
         listOfPlaces: List<Point>,
         routeType: RouteType,
         routeTraffic: TransportType
     ) {
-
         val screenCenterLocation = Point(
             (routeStartLocation.latitude + listOfPlaces.last().latitude) / 2,
             (routeStartLocation.longitude + listOfPlaces.last().longitude) / 2
@@ -140,7 +140,7 @@ class MapKitUtil(
 
         mapView.map.move(
             CameraPosition(
-                screenCenterLocation, currentZoom, 0f, 0f
+                screenCenterLocation, zoom, 0f, 0f
             )
         )
 
@@ -205,7 +205,8 @@ class MapKitUtil(
     fun getLastUpdatesLocation(): Point? = lastLocation
 
     fun cancelRoutes() {
-        mapView.map.mapObjects.remove(mapObjects)
+        mapObjects.clear()
+        mapObjects.addCollection()
         pedestrianSession?.cancel()
         bicycleSession?.cancel()
         drivingSession?.cancel()
