@@ -146,8 +146,16 @@ fun MapScreen(mapKitConfigure: MapKitConfigure, onConfigureChange: (MapKitConfig
                     }
 
                     locationVisibility.setOnClickListener {
-                        if (currentPosition != null)
+                        if (currentPosition != null) {
+                            yandexMapView.map.move(
+                                CameraPosition(
+                                    currentPosition,
+                                    yandexMapView.map.cameraPosition.zoom,
+                                    0f, 0f
+                                )
+                            )
                             mapKitUtil?.changeUserLocationVisibility()
+                        }
                     }
 
                     mapKitUtil?.start()

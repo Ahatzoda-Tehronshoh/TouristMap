@@ -56,7 +56,7 @@ fun PlaceDetailsScreen(
             .fillMaxSize()
             .background(color = Color.White)
     ) {
-        TopBar(place.isFavorite == 1, isBackButtonShow, onNavigateBack)
+        TopBar((place.isFavorite == 1), isBackButtonShow, onNavigateBack)
 
         ScreenContent(place, !isBackButtonShow, showOnMap)
     }
@@ -81,7 +81,7 @@ fun ScreenContent(place: Place, asBottomSheetShowing: Boolean, showOnMap: (place
                         .padding(bottom = 12.dp, end = 4.dp)
                         .weight(1f)
                 ) {
-                    Text("Показать на карте", fontSize = 12.sp)
+                    Text("Показать на карте", fontSize = 12.sp, textAlign = TextAlign.Center)
                 }
 
             Button(
@@ -95,7 +95,7 @@ fun ScreenContent(place: Place, asBottomSheetShowing: Boolean, showOnMap: (place
                     .padding(bottom = 12.dp, start = 4.dp)
                     .weight(1f)
             ) {
-                Text("Построить маршрут", fontSize = 12.sp)
+                Text("Построить маршрут", fontSize = 12.sp, textAlign = TextAlign.Center)
             }
         }
         Text(
@@ -123,7 +123,7 @@ fun ScreenContent(place: Place, asBottomSheetShowing: Boolean, showOnMap: (place
     }
 }
 
-@OptIn(ExperimentalGlideComposeApi::class)
+
 @Composable
 fun ListOfImages(images: List<String>) {
     val listStateRemember = rememberLazyListState()

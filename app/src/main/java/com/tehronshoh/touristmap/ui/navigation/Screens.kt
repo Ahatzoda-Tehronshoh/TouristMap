@@ -13,4 +13,6 @@ sealed class Screen(val route: String, @StringRes val labelId: Int? = null) {
     object PlaceDetails: Screen(route = DETAILS_ROUTE)
     object Map: Screen(route = MAP_ROUTE, labelId = R.string.map)
     object Profile: Screen(route = PROFILE_ROUTE, labelId = R.string.profile)
+    object Favorite: Screen(route = FAVORITE_ROUTE, labelId = R.string.favorite)
+    object Friends: Screen(route = FRIENDS_ROUTE, labelId = R.string.friends)
 }

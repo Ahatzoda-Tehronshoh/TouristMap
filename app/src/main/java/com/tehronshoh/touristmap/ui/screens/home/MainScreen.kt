@@ -1,6 +1,5 @@
 package com.tehronshoh.touristmap.ui.screens.home
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -77,6 +76,7 @@ fun MainScreen(
     Scaffold(
         topBar = {
             TopPagerBar(
+                pages = MainScreen.pages,
                 currentOpenPage = currentOpenPage
             ) {
                 openPageChanged(it)
@@ -126,7 +126,10 @@ fun MainScreen(
 }
 
 @Composable
-fun TopPagerBar(currentOpenPage: TopPagerBarItem, onPageChange: (TopPagerBarItem) -> Unit) {
+fun TopPagerBar(
+    pages: List<TopPagerBarItem>,
+    currentOpenPage: TopPagerBarItem, onPageChange: (TopPagerBarItem) -> Unit
+) {
     BottomNavigation(
         backgroundColor = Color.Transparent,
         contentColor = Color.Transparent,
@@ -135,8 +138,7 @@ fun TopPagerBar(currentOpenPage: TopPagerBarItem, onPageChange: (TopPagerBarItem
     ) {
         val currentRoute = currentOpenPage.route
 
-        MainScreen.pages.forEach { page ->
-            Log.d("TAG_MAIN", "TopPagerBar: ${page.route} - $currentRoute")
+        pages.forEach { page ->
             val selected = (currentRoute == page.route)
 
             val labelColor = if (selected)

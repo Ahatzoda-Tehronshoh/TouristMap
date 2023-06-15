@@ -12,6 +12,7 @@
                    android:id="@+id/traffic_visibility"
                    android:layout_width="48dp"
                    android:layout_height="48dp"
+                   android:backgroundTint="@color/primary"
                    android:text="@string/traffic"
                    android:layout_marginEnd="12dp"
                    android:layout_marginTop="50dp"
@@ -23,6 +24,7 @@
                    android:layout_width="48dp"
                    android:layout_height="48dp"
                    android:text="@string/location"
+                   android:backgroundTint="@color/primary"
                    android:layout_marginEnd="12dp"
                    android:layout_below="@id/traffic_visibility"
                    android:layout_alignParentEnd="true"/>
@@ -31,6 +33,7 @@
                    android:id="@+id/zoom_out_button"
                    android:layout_width="48dp"
                    android:layout_height="48dp"
+                   android:backgroundTint="@color/primary"
                    android:layout_alignParentEnd="true"
                    android:layout_alignParentBottom="true"
                    android:layout_marginEnd="12dp"
@@ -42,6 +45,7 @@
                    android:layout_width="48dp"
                    android:layout_height="48dp"
                    android:layout_above="@id/zoom_out_button"
+                   android:backgroundTint="@color/primary"
                    android:layout_alignEnd="@id/zoom_out_button"
                    android:text="@string/in_zoom" />
 

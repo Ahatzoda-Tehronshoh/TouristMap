@@ -83,7 +83,6 @@ fun AppNavGraph(
                     navController.navigate(Screen.Registration.route)
                 },
                 onNavigateToMainWithoutLogIn = {
-                    Log.d("TAG_AUTH", "AppNavGraph: Open as Guest!")
                     navController.navigate(Screen.Home.route)
                 }
             ) { user ->
@@ -98,6 +97,7 @@ fun AppNavGraph(
                                 isLoading = false
                                 if (result.data!!.size == 1) {
                                     Log.d("TAG_AUTH", "AppNavGraph: RIGHT!")
+                                    currentUser_SS = result.data[0]
                                     navController.navigate(Screen.Home.route)
                                     sharedPreferencesUtil.updateUserId(result.data[0].id)
                                 } else {

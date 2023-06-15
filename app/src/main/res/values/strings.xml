@@ -14,6 +14,9 @@
 
     <string name="main">Главная</string>
     <string name="profile">Профиль</string>
+    <string name="favorite">Избранные</string>
+    <string name="friends">Друзья</string>
+
     <string name="search">Поиск</string>
     <string name="map">Карта</string>
     <string name="tajikguide">TajikGuide</string>

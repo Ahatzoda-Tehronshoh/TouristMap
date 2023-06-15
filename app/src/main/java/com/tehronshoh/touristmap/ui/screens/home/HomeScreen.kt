@@ -10,6 +10,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -51,6 +52,9 @@ fun HomeScreen() {
     var currentOpenPageInMainScreen by rememberSaveable {
         mutableStateOf(MainScreen.pages[0])
     }
+    var currentOpenPageInProfileScreen by rememberSaveable {
+        mutableStateOf(ProfileScreen.pages[0])
+    }
 
     Scaffold(bottomBar = {
         if (bottomNavBarVisibility) BottomNavigationBar(navController = nestedNavController)
@@ -61,50 +65,61 @@ fun HomeScreen() {
         NavHost(
             navController = nestedNavController, startDestination = Screen.Main.route
         ) {
-                composable(route = Screen.Main.route) {
-                    Log.d("TAG_MAIN", "HomeScreen: Main Opened!")
-                    bottomNavBarVisibility = true
+            composable(route = Screen.Main.route) {
+                Log.d("TAG_MAIN", "HomeScreen: Main Opened!")
+                bottomNavBarVisibility = true
 
-                    MainScreen(currentOpenPage = currentOpenPageInMainScreen, openPageChanged = {
-                        currentOpenPageInMainScreen = it
-                    }, onNavigateToPlaceDetailsScreen = { placeId ->
-                        nestedNavController.navigate(
-                            Screen.PlaceDetails.route + placeId.toString()
-                        )
-                        Log.d("TAG_HOME", "HomeScreen: $placeId")
-                    })
+                MainScreen(currentOpenPage = currentOpenPageInMainScreen, openPageChanged = {
+                    currentOpenPageInMainScreen = it
+                }, onNavigateToPlaceDetailsScreen = { placeId ->
+                    nestedNavController.navigate(
+                        Screen.PlaceDetails.route + placeId.toString()
+                    )
+                    Log.d("TAG_HOME", "HomeScreen: $placeId")
+                })
 
-                }
+            }
 
-                composable(route = Screen.PlaceDetails.route + "{placeId}") {
-                    val viewModel = it.sharedViewModel<MainViewModel>(navController = nestedNavController)
-                    val staticListOfPlaces = viewModel.listOfPlace.value
+            composable(route = Screen.PlaceDetails.route + "{placeId}") {
+                val viewModel =
+                    it.sharedViewModel<MainViewModel>(navController = nestedNavController)
+                val staticListOfPlaces = viewModel.listOfPlace.value
 
-                    bottomNavBarVisibility = false
+                bottomNavBarVisibility = false
 
-                    it.arguments?.getString("placeId")?.toIntOrNull()?.let { id ->
-                        Log.d("TAG_HOME", "HomeScreen: $id")
-                        staticListOfPlaces.firstOrNull { place -> (id == place.id) }?.let { place ->
-                            Log.d("TAG_HOME", "HomeScreen: $place")
+                it.arguments?.getString("placeId")?.toIntOrNull()?.let { id ->
+                    Log.d("TAG_HOME", "HomeScreen: $id")
+                    staticListOfPlaces.firstOrNull { place -> (id == place.id) }?.let { place ->
+                        Log.d("TAG_HOME", "HomeScreen: $place")
 
-                            PlaceDetailsScreen(place = place,
-                                showOnMap = { showingPlace, isDrawRoute ->
-                                    currentOpenPageInMainScreen = MainScreen.pages[1].also { map ->
-                                        map.place = showingPlace
-                                        map.isDrawRoute = isDrawRoute
-                                    }
-                                    nestedNavController.navigateUp()
-                                }) {
-                                nestedNavController.navigateUp()
+                        PlaceDetailsScreen(place = place, showOnMap = { showingPlace, isDrawRoute ->
+                            currentOpenPageInMainScreen = MainScreen.pages[1].also { map ->
+                                map.place = showingPlace
+                                map.isDrawRoute = isDrawRoute
                             }
+
+                            nestedNavController.navigate(Screen.Main.route) {
+                                popUpTo(Screen.Main.route)
+                                launchSingleTop = true
+                            }
+                        }) {
+                            nestedNavController.navigateUp()
                         }
                     }
                 }
+            }
 
 
             composable(route = Screen.Profile.route) {
                 bottomNavBarVisibility = true
-                ProfileScreen()
+
+                ProfileScreen(profileOpenPage = currentOpenPageInProfileScreen, onPageChange = {
+                    currentOpenPageInProfileScreen = it
+                }) { placeId ->
+                    nestedNavController.navigate(
+                        Screen.PlaceDetails.route + placeId.toString()
+                    )
+                }
             }
         }
     }
