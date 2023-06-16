@@ -14,10 +14,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,6 +50,7 @@ import com.tehronshoh.touristmap.ui.components.PlaceList
 import com.tehronshoh.touristmap.ui.navigation.Screen
 import com.tehronshoh.touristmap.ui.tool.LocalFilteredPlaces
 import com.tehronshoh.touristmap.ui.tool.LocalUser
+import kotlinx.coroutines.delay
 
 object ProfileScreen {
     val pages = listOf(
@@ -57,6 +63,7 @@ object ProfileScreen {
 fun ProfileScreen(
     profileOpenPage: TopPagerBarItem,
     onPageChange: (TopPagerBarItem) -> Unit,
+    onNavigateToLogIn: () -> Unit,
     onNavigateToPlaceDetailsScreen: (Int) -> Unit
 ) {
     val user = LocalUser.current
@@ -84,11 +91,35 @@ fun ProfileScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.SpaceAround
             ) {
-                if (user == null)
-                    CircularProgressIndicator(
-                        color = colorResource(id = R.color.primary)
-                    )
-                else
+                if (user == null) {
+                    val showingProgressBar = rememberSaveable {
+                        mutableStateOf(true)
+                    }
+
+                    LaunchedEffect(Unit) {
+                        delay(3000L)
+                        showingProgressBar.value = false
+                    }
+                    if (showingProgressBar.value)
+                        CircularProgressIndicator(
+                            color = colorResource(id = R.color.primary)
+                        )
+                    else
+                        Button(
+                            onClick = {
+                                onNavigateToLogIn()
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = colorResource(id = R.color.primary),
+                                disabledContainerColor = colorResource(id = R.color.primary_100)
+                            ),
+                            modifier = Modifier
+                                .padding(bottom = 12.dp)
+                                .fillMaxWidth(0.7f)
+                        ) {
+                            Text("Войти")
+                        }
+                } else
                     Scaffold(
                         topBar = {
                             TopPagerBar(
@@ -102,7 +133,9 @@ fun ProfileScreen(
                         contentColor = Color.Yellow
                     ) { padding ->
                         Box(
-                            modifier = Modifier.padding(padding).fillMaxSize(),
+                            modifier = Modifier
+                                .padding(padding)
+                                .fillMaxSize(),
                             contentAlignment = Alignment.Center
                         ) {
                             when (profileOpenPage.route) {
@@ -224,7 +257,7 @@ private fun TopContainer(user: User?) {
 @Preview
 @Composable
 private fun ProfileScreenPreview() {
-    ProfileScreen(ProfileScreen.pages[0], {}) {
+    ProfileScreen(ProfileScreen.pages[0], {}, {}) {
 
     }
 }

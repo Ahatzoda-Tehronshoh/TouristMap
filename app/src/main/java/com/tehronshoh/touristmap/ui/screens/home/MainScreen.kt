@@ -34,8 +34,6 @@ import com.tehronshoh.touristmap.R
 import com.tehronshoh.touristmap.model.Filter
 import com.tehronshoh.touristmap.model.TopPagerBarItem
 import com.tehronshoh.touristmap.ui.navigation.Screen
-import com.tehronshoh.touristmap.ui.tool.LocalUserCurrentPosition
-import com.yandex.mapkit.geometry.Point
 
 object MainScreen {
     val pages = listOf(
@@ -51,24 +49,10 @@ object MainScreen {
 fun MainScreen(
     currentOpenPage: TopPagerBarItem,
     openPageChanged: (TopPagerBarItem) -> Unit,
+    mapKitConfigure: MapKitConfigure,
+    onConfigureChange: (MapKitConfigure) -> Unit,
     onNavigateToPlaceDetailsScreen: (Int) -> Unit
 ) {
-    val currentPosition = LocalUserCurrentPosition.current
-
-    val point = Point(
-        currentPosition?.latitude ?: 38.57935204500182,
-        currentPosition?.longitude ?: 68.79011909252935
-    )
-
-    var mapKitConfigure by rememberSaveable {
-        mutableStateOf(
-            MapKitConfigure(
-                pointLatitude = point.latitude,
-                pointLongitude = point.longitude,
-                currentZoom = 8f
-            )
-        )
-    }
 
     var searchingText by rememberSaveable { mutableStateOf("") }
     var choosingFilter by rememberSaveable { mutableStateOf(Filter.DEFAULT) }
@@ -107,19 +91,8 @@ fun MainScreen(
                     )
                 }
                 Screen.Map.route -> {
-                    if(currentOpenPage.place != null || currentOpenPage.routeSettings != null) {
-                        mapKitConfigure = MapKitConfigure(
-                            pointLatitude = mapKitConfigure.pointLatitude,
-                            pointLongitude = mapKitConfigure.pointLongitude,
-                            currentZoom = mapKitConfigure.currentZoom,
-                            place = currentOpenPage.place,
-                            routeSettings = currentOpenPage.routeSettings
-                        )
-                    }
                     MapScreen(mapKitConfigure) {
-                        mapKitConfigure = it
-                        currentOpenPage.place = it.place
-                        currentOpenPage.routeSettings = it.routeSettings
+                        onConfigureChange(it)
                     }
                 }
             }
@@ -196,6 +169,8 @@ fun TopPagerBar(
 private fun MainScreenPreview() {
     MainScreen(
         currentOpenPage = MainScreen.pages[0],
+        mapKitConfigure = MapKitConfigure(0.0, 0.0, 0.0f),
+        onConfigureChange = {},
         openPageChanged = {}
     ) {}
 }

@@ -140,9 +140,6 @@ fun MapScreen(mapKitConfigure: MapKitConfigure, onConfigureChange: (MapKitConfig
                 }
 
                 LaunchedEffect(mapKitConfigure) {
-                    if (mapKitConfigure.routeSettings != null) clear.visibility = VISIBLE
-                    else clear.visibility = GONE
-
                     mapKitUtil?.apply {
                         if (mapKitConfigure.place != null) {
                             yandexMapView.map.move(
@@ -154,6 +151,9 @@ fun MapScreen(mapKitConfigure: MapKitConfigure, onConfigureChange: (MapKitConfig
                                 )
                             )
                         }
+
+                        if (mapKitConfigure.routeSettings != null) clear.visibility = VISIBLE
+                        else clear.visibility = GONE
 
                         if (mapKitConfigure.routeSettings != null) {
                             if (currentPosition != null || getLastUpdatesLocation() != null) {
@@ -173,17 +173,6 @@ fun MapScreen(mapKitConfigure: MapKitConfigure, onConfigureChange: (MapKitConfig
                                     mapKitConfigure.routeSettings.transportType
                                 )
                             } else {
-                                cancelRoutes()
-                                addPlaces(
-                                    listOfPlace.map { place ->
-                                        Point(
-                                            place.latitude, place.longitude
-                                        )
-                                    }, ImageProvider.fromBitmap(
-                                        context.getBitmapFromVectorDrawable(R.drawable.baseline_location_on_24)
-                                    ), listener
-                                )
-
                                 Log.d(
                                     "TAG_MAP",
                                     "PlaceModalBottomSheetInitialize: currentPosition = null"
@@ -194,6 +183,17 @@ fun MapScreen(mapKitConfigure: MapKitConfigure, onConfigureChange: (MapKitConfig
                                     Toast.LENGTH_SHORT
                                 ).show()
                             }
+                        } else {
+                            cancelRoutes()
+                            addPlaces(
+                                listOfPlace.map { place ->
+                                    Point(
+                                        place.latitude, place.longitude
+                                    )
+                                }, ImageProvider.fromBitmap(
+                                    context.getBitmapFromVectorDrawable(R.drawable.baseline_location_on_24)
+                                ), listener
+                            )
                         }
                     }
                 }

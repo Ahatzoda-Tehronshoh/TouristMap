@@ -19,7 +19,9 @@ import com.tehronshoh.touristmap.model.BottomNavItem
 import com.tehronshoh.touristmap.model.RouteDrawingType
 import com.tehronshoh.touristmap.ui.components.BottomNavigationBar
 import com.tehronshoh.touristmap.ui.navigation.Screen
+import com.tehronshoh.touristmap.ui.tool.LocalUserCurrentPosition
 import com.tehronshoh.touristmap.viewmodel.MainViewModel
+import com.yandex.mapkit.geometry.Point
 
 
 object HomeScreen {
@@ -42,7 +44,9 @@ object HomeScreen {
 
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    onNavigateToLogIn: () -> Unit
+) {
     val nestedNavController = rememberNavController()
 
     var bottomNavBarVisibility by remember {
@@ -54,6 +58,23 @@ fun HomeScreen() {
     }
     var currentOpenPageInProfileScreen by rememberSaveable {
         mutableStateOf(ProfileScreen.pages[0])
+    }
+
+    val currentPosition = LocalUserCurrentPosition.current
+
+    val point = Point(
+        currentPosition?.latitude ?: 38.57935204500182,
+        currentPosition?.longitude ?: 68.79011909252935
+    )
+
+    var mapKitConfigure by rememberSaveable {
+        mutableStateOf(
+            MapKitConfigure(
+                pointLatitude = point.latitude,
+                pointLongitude = point.longitude,
+                currentZoom = 8f
+            )
+        )
     }
 
     Scaffold(bottomBar = {
@@ -69,14 +90,17 @@ fun HomeScreen() {
                 Log.d("TAG_MAIN", "HomeScreen: Main Opened!")
                 bottomNavBarVisibility = true
 
-                MainScreen(currentOpenPage = currentOpenPageInMainScreen, openPageChanged = {
-                    currentOpenPageInMainScreen = it
-                }, onNavigateToPlaceDetailsScreen = { placeId ->
-                    nestedNavController.navigate(
-                        Screen.PlaceDetails.route + placeId.toString()
-                    )
-                    Log.d("TAG_HOME", "HomeScreen: $placeId")
-                })
+                MainScreen(
+                    currentOpenPage = currentOpenPageInMainScreen,
+                    openPageChanged = { currentOpenPageInMainScreen = it },
+                    mapKitConfigure = mapKitConfigure,
+                    onConfigureChange = { mapKitConfigure = it },
+                    onNavigateToPlaceDetailsScreen = { placeId ->
+                        nestedNavController.navigate(
+                            Screen.PlaceDetails.route + placeId.toString()
+                        )
+                        Log.d("TAG_HOME", "HomeScreen: $placeId")
+                    })
 
             }
 
@@ -95,22 +119,25 @@ fun HomeScreen() {
                         PlaceDetailsScreen(
                             place = place,
                             showOnMap = { showingPlace, routeSettings ->
-                                currentOpenPageInMainScreen = MainScreen.pages[1].also { map ->
-                                    map.place = showingPlace
+                                mapKitConfigure = MapKitConfigure(
+                                    pointLatitude = mapKitConfigure.pointLatitude,
+                                    pointLongitude = mapKitConfigure.pointLongitude,
+                                    currentZoom = mapKitConfigure.currentZoom,
+                                    azimuth = mapKitConfigure.azimuth,
+                                    tilt = mapKitConfigure.tilt,
+                                    place = showingPlace,
+                                    routeSettings = if (routeSettings != null && routeSettings.drawingType != RouteDrawingType.CLEAR && routeSettings.routeType == mapKitConfigure.routeSettings?.routeType && routeSettings.transportType == mapKitConfigure.routeSettings?.transportType)
+                                        mapKitConfigure.routeSettings?.also { mapRS ->
+                                            mapRS.points =
+                                                mapRS.points.toMutableList().also { list ->
+                                                    list.add(routeSettings.points[0])
+                                                }.toList()
+                                        } ?: routeSettings
+                                    else
+                                        routeSettings
+                                )
 
-                                    if (routeSettings != null) {
-                                        if (routeSettings.drawingType != RouteDrawingType.CLEAR && routeSettings.routeType == map.routeSettings?.routeType && routeSettings.transportType == map.routeSettings?.transportType)
-                                            map.routeSettings = map.routeSettings?.also { mapRS ->
-                                                mapRS.points =
-                                                    mapRS.points.toMutableList().also { list ->
-                                                        list.add(routeSettings.points[0])
-                                                    }.toList()
-                                            } ?: routeSettings
-                                        else
-                                            map.routeSettings = routeSettings
-                                    }
-
-                                }
+                                currentOpenPageInMainScreen = MainScreen.pages[1]
 
                                 nestedNavController.navigate(Screen.Main.route) {
                                     popUpTo(Screen.Main.route)
@@ -127,9 +154,11 @@ fun HomeScreen() {
             composable(route = Screen.Profile.route) {
                 bottomNavBarVisibility = true
 
-                ProfileScreen(profileOpenPage = currentOpenPageInProfileScreen, onPageChange = {
-                    currentOpenPageInProfileScreen = it
-                }) { placeId ->
+                ProfileScreen(
+                    profileOpenPage = currentOpenPageInProfileScreen,
+                    onPageChange = { currentOpenPageInProfileScreen = it },
+                    onNavigateToLogIn = onNavigateToLogIn,
+                ) { placeId ->
                     nestedNavController.navigate(
                         Screen.PlaceDetails.route + placeId.toString()
                     )
@@ -142,5 +171,5 @@ fun HomeScreen() {
 @Preview
 @Composable
 private fun HomeScreenPreview() {
-    HomeScreen()
+    HomeScreen{}
 }

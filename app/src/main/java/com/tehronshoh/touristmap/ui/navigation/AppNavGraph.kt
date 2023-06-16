@@ -184,7 +184,9 @@ fun AppNavGraph(
                 LocalStaticPlaces provides staticListRemember.value,
                 LocalFilteredPlaces provides listOfPlace.value
             ) {
-                HomeScreen()
+                HomeScreen {
+                    navController.navigate(Screen.LogIn.route)
+                }
             }
         }
     }
