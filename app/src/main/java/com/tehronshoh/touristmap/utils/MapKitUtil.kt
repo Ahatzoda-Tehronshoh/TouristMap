@@ -205,8 +205,7 @@ class MapKitUtil(
     fun getLastUpdatesLocation(): Point? = lastLocation
 
     fun cancelRoutes() {
-        mapObjects.clear()
-        mapObjects.addCollection()
+        mapView.map.mapObjects.clear()
         pedestrianSession?.cancel()
         bicycleSession?.cancel()
         drivingSession?.cancel()

@@ -184,7 +184,9 @@ fun MapScreen(mapKitConfigure: MapKitConfigure, onConfigureChange: (MapKitConfig
                                 ).show()
                             }
                         } else {
+                            Toast.makeText(context, "Cleared!", Toast.LENGTH_SHORT).show()
                             cancelRoutes()
+                            yandexMapView.map.mapObjects.clear()
                             addPlaces(
                                 listOfPlace.map { place ->
                                     Point(
